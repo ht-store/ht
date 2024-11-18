@@ -15,7 +15,7 @@ export const inventories = pgTable(
   "inventories",
   {
     id: serial("id").primaryKey(),
-    skuId: integer("product_id").references(() => skus.id, {
+    skuId: integer("sku_id").references(() => skus.id, {
       onDelete: "cascade",
     }),
     warehouseId: integer("warehouse_id").references(() => warehouses.id, {

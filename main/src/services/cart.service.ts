@@ -1,6 +1,10 @@
 import { inject, injectable } from "inversify";
 import { Cart, CartItem } from "src/database/schemas";
-import { ICartItemRepository, ICartRepository } from "src/repositories";
+import {
+  ICartItemRepository,
+  ICartRepository,
+  IInventoryRepository,
+} from "src/repositories";
 import { INTERFACE_NAME } from "src/shared/constants";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 export type CartStatus = "active" | "inactive" | "expired" | "saved";
@@ -43,7 +47,9 @@ export class CartService implements ICartService {
     @inject(INTERFACE_NAME.CartRepository)
     private readonly cartRepository: ICartRepository,
     @inject(INTERFACE_NAME.CartItemRepository)
-    private readonly cartItemRepository: ICartItemRepository
+    private readonly cartItemRepository: ICartItemRepository,
+    @inject(INTERFACE_NAME.InventoryRepository)
+    private readonly inventoryRepository: IInventoryRepository
   ) {}
 
   async getCarts(): Promise<Cart[]> {
@@ -59,11 +65,21 @@ export class CartService implements ICartService {
   }
 
   async getUserCart(userId: number): Promise<Cart> {
-    const cart = await this.cartRepository.findByUserId(userId);
-    if (!cart) {
-      throw new NotFoundError("Cart not found for the user.");
+    const cart = await this.cartRepository.findByUserIdRelation(userId);
+    if (cart.length <= 0) {
+      return await this.cartRepository.findByUserId(userId);
     }
-    return cart;
+    const res = cart.map((item: any) => ({
+      cartId: item.cartId,
+      skuId: item.skuId,
+      cartItemId: item.cartItemId,
+      productName: item.productName,
+      productImage: item.productImage,
+      quantity: item.quantity,
+      price: item.price,
+      total: item.quantity * item.price,
+    }));
+    return res;
   }
 
   async createCart(userId: number): Promise<Cart> {
@@ -111,7 +127,8 @@ export class CartService implements ICartService {
 
   async updateItemQuantity(updateItemData: UpdateItemData): Promise<CartItem> {
     const { cartItemId, quantity } = updateItemData;
-    return this.cartItemRepository.update(cartItemId, { quantity });
+    const item = await this.cartItemRepository.update(cartItemId, { quantity });
+    return item;
   }
 
   async removeItemFromCart(cartItemId: number): Promise<void> {

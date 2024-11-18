@@ -173,6 +173,39 @@ export class ProductController {
     }
   }
 
+  async getProductDetail(req: Request, res: Response, next: NextFunction) {
+    const skuId = parseInt(req.params.skuId);
+    const productId = parseInt(req.params.productId);
+    try {
+      const products = await this.productService.getDetail(productId, skuId);
+      const response = {
+        success: true,
+        message: "Get products relation is successful",
+        data: products,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      logger.error(`Get Products by brandId ${skuId} failed`, error);
+      next(error);
+    }
+  }
+
+  async getStorages(req: Request, res: Response, next: NextFunction) {
+    const { value, productId } = req.body;
+    try {
+      const products = await this.productService.getStorages(value, +productId);
+      const response = {
+        success: true,
+        message: "Get products relation is successful",
+        data: products,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      logger.error(`Get Products by brandId ${value} failed`, error);
+      next(error);
+    }
+  }
+
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     if (!req.file) {
       return res.status(400).send("No file uploaded.");

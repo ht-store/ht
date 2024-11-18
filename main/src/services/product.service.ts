@@ -21,6 +21,16 @@ import { INTERFACE_NAME } from "src/shared/constants";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import logger from "src/utils/logger";
 
+interface AttributesData {
+  id: number;
+  skuId: number;
+  attributeId: number;
+  type: string;
+  value: string;
+  colorImage: string;
+  price: string;
+}
+
 export interface IProductService {
   getProducts(
     filters: {
@@ -39,6 +49,12 @@ export interface IProductService {
   deleteProduct(id: number): Promise<Product>;
   searchProducts(name: string, page: number, limit: number): Promise<Sku[]>;
   getSkusByProductId(productId: number): Promise<Sku[]>;
+  getDetails(skuId: number): Promise<any>;
+  getDetail(productId: number, skuId: number): Promise<any>;
+  getAttributesByProductId(
+    productId: number
+  ): Promise<Record<number, AttributesData[]>>;
+  getStorages(value: string, productId: number): Promise<any>;
 }
 
 @injectable()
@@ -129,16 +145,12 @@ export class ProductService implements IProductService {
             })
           );
 
-          await Promise.all(
-            sku.attributes.map(async (attribute) => {
-              await this.priceRepository.add({
-                skuId: createdSku.id,
-                price: attribute.price,
-                activate: true,
-                effectiveDate: new Date(),
-              });
-            })
-          );
+          await this.priceRepository.add({
+            skuId: createdSku.id,
+            price: sku.price,
+            activate: true,
+            effectiveDate: new Date(),
+          });
 
           return createdSku;
         })
@@ -165,5 +177,73 @@ export class ProductService implements IProductService {
 
   async getSkusByProductId(productId: number): Promise<Sku[]> {
     return await this.skuRepository.findByProductId(productId);
+  }
+
+  async getDetails(skuId: number): Promise<any> {
+    const skus = await this.skuRepository.findBySkuId(skuId);
+    if (!skus.length) {
+      throw new NotFoundError("SKU not found");
+    }
+    const atributes = await this.skuRepository.findByProductId(
+      skus[0].products.id
+    );
+    return {
+      skus,
+      atributes: atributes,
+    };
+  }
+
+  async getStorages(value: string, productId: number) {
+    const skus = await this.skuAttributeRepository.finByValueAndProductId(
+      value,
+      productId
+    ); // Tìm theo giá trị
+    console.log(skus);
+
+    // Sử dụng Promise.all để xử lý tất cả các truy vấn bất đồng bộ
+    const skustorages = await Promise.all(
+      skus.map((attribute) =>
+        this.skuAttributeRepository.findBySkuIdAndAttributeId(
+          attribute.skuId,
+          attribute.attributeId
+        )
+      )
+    );
+
+    return skustorages;
+  }
+
+  async getDetail(productId: number, skuId: number) {
+    const product = await this.productRepository.findDetail(productId, skuId);
+    if (!product) {
+      throw new NotFoundError("Product not found");
+    }
+    const attributes = await this.getAttributesByProductId(productId);
+    return {
+      product,
+      attributes,
+    };
+  }
+
+  async getAttributesByProductId(productId: number) {
+    const attributes =
+      await this.skuAttributeRepository.findByProductId(productId);
+    const uniqueAttributes = Array.from(
+      new Map(attributes.map((item) => [item.value, item])).values()
+    );
+    const colorAttributes = uniqueAttributes.filter(
+      (item) => item.type === "Color"
+    );
+    const groupedByAttributeId = colorAttributes.reduce<
+      Record<number, AttributesData[]>
+    >((acc, item) => {
+      const key = item.type;
+      if (!acc[item.type]) {
+        acc[item.type] = [];
+      }
+      acc[item.type].push(item);
+      return acc;
+    }, {});
+    return groupedByAttributeId;
   }
 }

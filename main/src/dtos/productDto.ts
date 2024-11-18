@@ -3,7 +3,6 @@ import { z } from "zod";
 const skuSchema = z.object({
   attributeId: z.number(), // Link to attribute definition
   value: z.string(), // Example: "512GB", "Red"
-  price: z.string(), // Example: Specific SKU price
 });
 
 // Define product schema
@@ -28,6 +27,7 @@ const createProductSchema = z.object({
       name: z.string(),
       slug: z.string(),
       attributes: z.array(skuSchema),
+      price: z.string(), // Example: Specific SKU price
     })
   ),
 });

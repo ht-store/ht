@@ -44,4 +44,7 @@ export const INTERFACE_NAME = {
   ImportOrderItemRepository: Symbol.for("ImportOrderItemRepository"),
   StockMovementRepository: Symbol.for("StockMovementRepository"),
   ProductSerialRepository: Symbol.for("ProductSerialRepository"),
+  ImportOrderService: Symbol.for("ImportOrderService"),
+  ProductSerialService: Symbol.for("ProductSerialService"),
+  ProductSerialController: Symbol.for("ProductSerialController"),
 };

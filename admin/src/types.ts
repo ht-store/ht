@@ -17,12 +17,70 @@ export interface User {
 }
 
 // Product type
-export interface Product {
+// types.ts
+
+// Define the table data type for general table usage
+export type TableData = (string | number | JSX.Element)[];
+
+// User type
+export interface User {
   id: number;
-  productName: string;
-  category: string;
-  price: number;
+  name: string;
+  phoneNumber: string;
+  email: string;
+}
+
+// Product type
+export interface Product {
+  name: string;
+  brandId: number;
+  categoryId: number;
+  screenSize: string;
+  battery: string;
+  camera: string;
+  processor: string;
+  os: string;
+  releaseDate: string;
+  image: string;
+  originalPrice: string;
+  details: ProductDetail[];
+}
+
+export interface ProductDetail {
+  name: string;
+  slug: string;
+  attributes: { attributeId: number; value: string }[]; // assuming attributes are an array of objects
+  price: string | number;
   stock: number;
+}
+
+export interface NewProduct {
+  name: string;
+  brandId: number;
+  categoryId: number;
+  details: ProductDetail[];
+}
+
+// API response type for products
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+// Import order types
+export interface ImportOrder {
+  id: number;
+  supplierId: number;
+  orderDate: string;
+  totalAmount: string;
+  status: string;
+}
+
+export interface Item {
+  skuId: string;
+  quantity: string;
+  price: string;
 }
 
 // Order type
@@ -54,4 +112,26 @@ export interface ProductResponse {
     createdAt: string;
     updatedAt: string;
   };
+}
+
+// types.ts
+
+export interface ImportOrder {
+  id: number;
+  supplierId: number;
+  orderDate: string;
+  totalAmount: string;
+  status: string;
+}
+
+export interface ImportOrderResponse {
+  id: number;
+  supplierId: number;
+  orderDate: string;
+  totalAmount: string;
+  status: string;
+}
+
+export interface ApiResponse<T> {
+  data: T;
 }

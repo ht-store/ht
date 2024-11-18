@@ -1,6 +1,7 @@
 import {
   Attribute,
   attributes,
+  prices,
   Product,
   products,
   Sku,
@@ -9,7 +10,7 @@ import {
 } from "src/database/schemas";
 import { IRepository, Repository } from "./repository";
 import { injectable } from "inversify";
-import { eq, sql, like, gte, lte } from "drizzle-orm";
+import { eq, sql, like, gte, lte, and } from "drizzle-orm";
 import { skus } from "src/database/schemas";
 
 export type ProductWithRelation = Product & {
@@ -18,6 +19,7 @@ export type ProductWithRelation = Product & {
 };
 
 export interface IProductRepository extends IRepository<Product> {
+  findDetail(productId: number, skuId: number): Promise<any>;
   findByName(name: string): Promise<Product | null>;
   findByIdWithRelations(id: number): Promise<ProductWithRelation>;
   findWithRelations(
@@ -204,5 +206,35 @@ export class ProductRepository
     query.limit(pageSize);
 
     return await query;
+  }
+
+  async findDetail(productId: number, skuId: number) {
+    const product = await this.db
+      .select({
+        id: products.id,
+        name: products.name,
+        screenSize: products.screenSize,
+        battery: products.battery,
+        camera: products.camera,
+        processor: products.processor,
+        os: products.os,
+        skuId: skus.id,
+        skuName: skus.name,
+        skuSlug: skus.slug,
+        skuImage: skus.image,
+        price: prices.price,
+      })
+      .from(products)
+      .innerJoin(skus, eq(products.id, skus.productId))
+      .innerJoin(prices, eq(skus.id, prices.skuId))
+      .where(
+        and(
+          eq(products.id, productId),
+          eq(prices.activate, true),
+          eq(skus.id, skuId)
+        )
+      );
+
+    return product[0];
   }
 }

@@ -7,7 +7,7 @@ import {
   index,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { InferSelectModel, relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
 import { skus } from "./sku";
 import { productSellWarranties } from "./product-sell-warranty";
 
@@ -46,3 +46,4 @@ const productSerialsRelations = relations(productSerials, ({ one, many }) => ({
 }));
 
 export type ProductSerial = InferSelectModel<typeof productSerials>;
+export type ProductSerialData = InferInsertModel<typeof productSerials>;

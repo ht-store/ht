@@ -66,7 +66,7 @@ const Product = ({ product }: ProductProps) => {
 
   return (
     <Link
-      to={`/mobile/${product.skus.productId}`}
+      to={`/mobile/${product.skus.productId}/${product.skus.id}`}
       className="grid grid-cols-6 border-b-[1px] pb-8 cursor-pointer hover:bg-gray-50 transition-colors"
     >
       <div className="col-span-2 md:col-span-1 flex items-center justify-center p-2">

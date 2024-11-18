@@ -9,6 +9,12 @@ export interface IInventoryRepository extends IRepository<Inventory> {
     warehouseId: number,
     quantity: number
   ): Promise<Inventory>;
+
+  reserveInventory(
+    skuId: number,
+    warehouseId: number,
+    quantity: number
+  ): Promise<Inventory>;
 }
 
 @injectable()
@@ -35,6 +41,21 @@ export class InventoryRepository
         },
       })
       .returning(); // Add returning() to get the result back
+    return res;
+  }
+
+  async reserveInventory(
+    skuId: number,
+    warehouseId: number,
+    quantity: number
+  ): Promise<Inventory> {
+    const [res] = await this.db
+      .update(inventories)
+      .set({
+        reservedQuantity: sql`${inventories.reservedQuantity} + ${quantity}`,
+      })
+      .where(sql`${inventories.skuId} = ${skuId}`)
+      .returning();
     return res;
   }
 }

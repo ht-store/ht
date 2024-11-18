@@ -1,13 +1,42 @@
-import { prices, Sku, skus } from "src/database/schemas";
+import {
+  attributes,
+  prices,
+  products,
+  Sku,
+  skuAttributes,
+  skus,
+} from "src/database/schemas";
 import { IRepository, Repository } from "./repository";
 import { injectable } from "inversify";
-import { ilike, eq, and } from "drizzle-orm";
+import { ilike, eq, and, or } from "drizzle-orm";
 import logger from "src/utils/logger";
 
 export interface ISkuRepository extends IRepository<Sku> {
   search(name: string, page: number, limit: number): Promise<any[]>;
   findByProductId(productId: number): Promise<any[]>;
   findBySlug(slug: string): Promise<any[]>;
+  findBySkuId(skuId: number): Promise<any[]>;
+  getColorStorageCombinations(skuId: number): Promise<
+    {
+      color: string;
+      storage: string;
+    }[]
+  >;
+  getSkuWithAttributes(skuId: number): Promise<{
+    sku: {
+      id: number;
+      name: string;
+      image: string;
+      createdAt: Date;
+      updatedAt: Date;
+      productId: number;
+      slug: string;
+    };
+    attributes: {
+      value: string;
+      attributeType: string;
+    }[];
+  }>;
 }
 
 @injectable()
@@ -30,14 +59,36 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
 
   async findByProductId(productId: number) {
     logger.info(`Searching for skus with productId ${productId}`);
-    return await this.db
+    const skus1 = await this.db
       .select()
       .from(skus)
-      .leftJoin(
+      .innerJoin(
         prices,
         and(eq(skus.id, prices.skuId), eq(prices.activate, true))
       )
+      .innerJoin(
+        products,
+        and(eq(skus.productId, products.id), eq(products.id, productId))
+      )
+      .innerJoin(skuAttributes, eq(skuAttributes.skuId, skus.id))
+      .innerJoin(attributes, eq(attributes.id, skuAttributes.attributeId))
       .where(eq(skus.productId, productId));
+
+    return skus1;
+  }
+
+  async findBySkuId(skuId: number) {
+    logger.info(`Searching for skus with skuId ${skuId}`);
+    return await this.db
+      .select()
+      .from(skus)
+      .innerJoin(
+        prices,
+        and(eq(skus.id, prices.skuId), eq(prices.activate, true))
+      )
+      .innerJoin(products, eq(skus.productId, products.id))
+      .innerJoin(skuAttributes, eq(skuAttributes.skuId, skuId))
+      .where(eq(skus.id, skuId));
   }
 
   async findBySlug(slug: string) {
@@ -50,5 +101,48 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
         and(eq(skus.id, prices.skuId), eq(prices.activate, true))
       )
       .where(eq(skus.slug, slug));
+  }
+
+  async getSkuWithAttributes(skuId: number) {
+    const sku = await this.db
+      .select()
+      .from(skus)
+      .where(eq(skus.id, skuId))
+      .limit(1)
+      .execute();
+    if (sku.length === 0) throw new Error("SKU not found");
+
+    // Get associated attributes for this SKU (like color and storage)
+    const skuAttr = await this.db
+      .select({ value: skuAttributes.value, attributeType: attributes.type })
+      .from(skuAttributes)
+      .innerJoin(attributes, eq(skuAttributes.attributeId, attributes.id))
+      .where(eq(skuAttributes.skuId, skuId))
+      .execute();
+
+    return {
+      sku: sku[0], // SKU details
+      attributes: skuAttr, // SKU attributes like color and storage
+    };
+  }
+
+  // Fetch combinations of color and storage for SKU
+  async getColorStorageCombinations(skuId: number) {
+    const combinations = await this.db
+      .select({
+        color: skuAttributes.value,
+        storage: skuAttributes.value,
+      })
+      .from(skuAttributes)
+      .innerJoin(attributes, eq(skuAttributes.attributeId, attributes.id))
+      .where(
+        and(
+          eq(skuAttributes.skuId, skuId),
+          or(eq(attributes.type, "color"), eq(attributes.type, "storage"))
+        )
+      )
+      .execute();
+
+    return combinations;
   }
 }

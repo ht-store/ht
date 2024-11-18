@@ -16,6 +16,7 @@ export class CartController {
   async getCart(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
+      console.log(userId);
       const cart = await this.cartService.getUserCart(+userId);
 
       return res.status(STATUS_CODES.OK).json({

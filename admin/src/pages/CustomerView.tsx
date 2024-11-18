@@ -1,6 +1,5 @@
 import React from "react";
 import MUIDataTable from "mui-datatables";
-import { useProductData } from "../hooks/useProductData";
 import { useCustomerData } from "../hooks/useCustomerData";
 
 const CustomerView: React.FC = () => {

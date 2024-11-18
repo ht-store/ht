@@ -4,12 +4,11 @@ import { ApiResponse, Product, ProductResponse, TableData } from "../types";
 import { ActionButtons } from "../components/ActionButton";
 import { API_URL } from "../utils/constant";
 
-// Define type for table data that can include JSX elements
-
+// Define type for table data
 export const useProductData = () => {
   const [columns, setColumns] = useState<string[]>([]);
   const [data, setData] = useState<TableData[]>([]);
-  const [title, setTitle] = useState<string>("Sản phẩm");
+  const [title, setTitle] = useState<string>("Quản lý sản phẩm");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

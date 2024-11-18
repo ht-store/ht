@@ -3,9 +3,11 @@ import {
   AuthController,
   BrandController,
   CategoryController,
+  InventoryController,
   ProductController,
   RoleController,
   SupplierController,
+  UserController,
   WarehouseController,
 } from "src/controllers";
 import { CartController } from "src/controllers/cart.controller";
@@ -20,11 +22,18 @@ import {
   ICartItemRepository,
   ICartRepository,
   ICategoryRepository,
+  IImportOrderItemRepository,
+  IImportOrderRepository,
+  IInventoryRepository,
+  ImportOrderItemRepository,
+  ImportOrderRepository,
+  InventoryRepository,
   IPriceRepository,
   IProductRepository,
   IRoleRepository,
   ISkuAttributeRepository,
   ISkuRepository,
+  IStockMovementRepository,
   ISupplierRepository,
   IUserRepository,
   IWarehouseRepository,
@@ -33,6 +42,7 @@ import {
   RoleRepository,
   SkuAttributeRepository,
   SkuRepository,
+  StockMovementRepository,
   SupplierRepository,
   UserRepository,
   WarehouseRepository,
@@ -46,23 +56,34 @@ import {
   IBrandService,
   ICartService,
   ICategoryService,
+  IImportOrderService,
+  ImportOrderService,
   IProductService,
   IRoleService,
   ISupplierService,
+  IUserService,
   IWarehouseService,
   ProductService,
   RoleService,
   SupplierService,
+  UserService,
   WarehouseService,
 } from "src/services";
 import { INTERFACE_NAME } from "src/shared/constants";
 import EventEmitter from "events";
+import {
+  IInventoryService,
+  InventoryService,
+} from "src/services/inventory.service";
 
 const container = new Container();
 
 container
   .bind<IUserRepository>(INTERFACE_NAME.UserRepository)
   .to(UserRepository);
+
+container.bind<IUserService>(INTERFACE_NAME.UserService).to(UserService);
+container.bind(INTERFACE_NAME.UserController).to(UserController);
 container.bind<IAuthService>(INTERFACE_NAME.AuthService).to(AuthService);
 container.bind(INTERFACE_NAME.AuthController).to(AuthController);
 container
@@ -121,6 +142,25 @@ container.bind(INTERFACE_NAME.CartController).to(CartController);
 container
   .bind<ICartItemRepository>(INTERFACE_NAME.CartItemRepository)
   .to(CartItemRepository);
+container
+  .bind<IInventoryRepository>(INTERFACE_NAME.InventoryRepository)
+  .to(InventoryRepository);
+container
+  .bind<IInventoryService>(INTERFACE_NAME.InventoryService)
+  .to(InventoryService);
+container.bind(INTERFACE_NAME.InventoryController).to(InventoryController);
+container
+  .bind<IStockMovementRepository>(INTERFACE_NAME.StockMovementRepository)
+  .to(StockMovementRepository);
+container
+  .bind<IImportOrderRepository>(INTERFACE_NAME.ImportOrderRepository)
+  .to(ImportOrderRepository);
+container
+  .bind<IImportOrderService>(INTERFACE_NAME.ImportOrderService)
+  .to(ImportOrderService);
+container
+  .bind<IImportOrderItemRepository>(INTERFACE_NAME.ImportOrderItemRepository)
+  .to(ImportOrderItemRepository);
 // container.bind<IAddressRepository>(INTERFACE_NAME.AddressRepository).to(AddressRepository);
 // container.bind<IAddressService>(INTERFACE_NAME.AddressService).to(AddressService);
 // container.bind<ICustomerRepository>(INTERFACE_NAME.CustomerRepository).to(CustomerRepository);

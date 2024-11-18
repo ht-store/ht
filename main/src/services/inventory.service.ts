@@ -1,5 +1,12 @@
 import { inject, injectable } from "inversify";
-import { Inventory, StockMovement } from "src/database/schemas";
+import { DB } from "src/database/connect";
+import {
+  Inventory,
+  ProductSerial,
+  ProductSerialData,
+  productSerials,
+  StockMovement,
+} from "src/database/schemas";
 import {
   IImportOrderItemRepository,
   IImportOrderRepository,
@@ -42,19 +49,45 @@ export class InventoryService implements IInventoryService {
       // Cập nhật tồn kho cho mỗi SKU trong order
       await this.inventoryRepository.updateQuanity(
         item.skuId,
-        importOrderId,
+        1,
         item.quantity
       );
 
       // Ghi nhận lịch sử nhập hàng vào kho
       await this.stockMovementRepository.add({
         skuId: item.skuId,
-        warehouseId: importOrderId,
+        warehouseId: 1,
         movementType: "IMPORT",
         quantity: item.quantity,
         referenceId: importOrderId,
         movementDate: new Date(importDate),
       });
+
+      // Tạo serials cho sản phẩm
+      const currentDate = new Date();
+      const dateFormatted = currentDate
+        .toISOString()
+        .split("T")[0]
+        .replace(/-/g, "");
+
+      const { skuId, quantity } = item;
+
+      // Tạo serial numbers cho từng sản phẩm
+      const serialNumbers: ProductSerialData[] = [];
+
+      // Tạo serials theo định dạng SKU-YYYYMMDD-XXXX
+      for (let i = 0; i < quantity; i++) {
+        const serialNumber = `${skuId}-${dateFormatted}-${String(i + 1).padStart(4, "0")}`;
+
+        serialNumbers.push({
+          skuId,
+          serialNumber,
+          status: "inventory", // Mặc định là "inventory" khi nhập kho
+        });
+      }
+
+      // Lưu serial vào cơ sở dữ liệu
+      await DB.insert(productSerials).values(serialNumbers);
     }
   }
 
@@ -70,7 +103,7 @@ export class InventoryService implements IInventoryService {
         .reduce((sum, item) => sum + item.price * item.quantity, 0)
         .toFixed(2),
     });
-
+    console.log(items);
     for (const item of items) {
       await this.importOrderItemRepository.add({
         skuId: item.skuId,
@@ -80,8 +113,17 @@ export class InventoryService implements IInventoryService {
         importOrderId: importOrder.id,
       });
     }
-
+    console.log(11);
     // Nhập kho dựa trên order
     await this.importStock(importOrder.id, items, importOrder.orderDate);
+  }
+
+  private async generateSerialNumbers(
+    skuId: string,
+    quantity: number,
+    orderId: number,
+    importDate: string
+  ): Promise<void> {
+    // Lưu serial vào cơ sở dữ liệu bằng Drizzle ORM
   }
 }

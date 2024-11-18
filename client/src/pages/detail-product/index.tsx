@@ -1,140 +1,163 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { HomeFooter } from "@/components/home/footer";
 import { HomeHeader } from "@/components/home/header";
 import { Button } from "@/components/ui/button";
-import cartLogo from "@/assets/svgs/cart.svg";
-import flashLogo from "@/assets/svgs/flash.svg";
-import { TagIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getProductItems } from "@/services/product";
-import { formatMoneyVND } from "@/lib/utils/price";
-import { addItemToCart, getMyCart } from "@/services/cart";
 import { toast } from "react-toastify";
 import { HttpStatusCode } from "axios";
-import { orderCheckout } from "@/services/order";
+import cartLogo from "@/assets/svgs/cart.svg";
+import flashLogo from "@/assets/svgs/flash.svg";
+import { formatMoneyVND } from "@/lib/utils/price";
+import { addItemToCart, getMyCart } from "@/services/cart";
+import { getProduct, getStorage } from "@/services/product";
+
+interface Attribute {
+  id: number;
+  skuId: number;
+  attributeId: number;
+  type: string;
+  value: string;
+  colorImage: string;
+  price: string;
+}
+
+interface ProductAttributes {
+  Color: Attribute[];
+  Storage: Attribute[];
+}
+
+interface ProductData {
+  id: number;
+  name: string;
+  screenSize: string;
+  battery: string;
+  camera: string;
+  processor: string;
+  os: string;
+  skuId: number;
+  skuName: string;
+  skuSlug: string;
+  skuImage: string;
+  price: string;
+}
+
+interface ProductResponse {
+  product: ProductData;
+  attributes: ProductAttributes;
+}
 
 const DetailProduct = () => {
-  const { productId } = useParams();
+  const { productId, skuId } = useParams();
   const navigate = useNavigate();
-  const [cartId, setCartId] = useState<number>();
-  const [product, setProduct] = useState<any>();
-  const [colors, setColors] = useState<string[]>([]);
-  const [storages, setStorages] = useState<string[]>([]);
+  const [cartId, setCartId] = useState<number | null>(null);
+  const [productData, setProductData] = useState<ProductResponse | null>(null);
+  const [selectedColor, setSelectedColor] = useState<Attribute | null>(null);
+  const [selectedStorage, setSelectedStorage] = useState<Attribute | null>(
+    null
+  );
+  const [storageAttributes, setStorageAttributes] = useState<Attribute[]>([]);
+  console.log("selectedColor", selectedColor);
+  console.log("selectedStorage", selectedStorage);
+  console.log("storageAttributes", storageAttributes);
 
-  const handleChooseProductItem = ({
-    type,
-    value,
-  }: {
-    type: string;
-    value: string;
-  }) => {
-    const filters = {
-      color: product?.color,
-      storage: product?.storage,
-      [type]: value,
+  // Fetch Product and Attributes
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (productId && skuId) {
+        try {
+          const response = await getProduct(+productId, +skuId);
+          if (response.data.success) {
+            setProductData(response.data.data);
+            // Set default color selection
+            if (response.data.data.attributes.Color.length > 0) {
+              const defaultColor = response.data.data.attributes.Color[0];
+              setSelectedColor(defaultColor);
+              fetchStorage(defaultColor); // Fetch storage for the default color
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching product:", error);
+          toast.error("Không thể tải thông tin sản phẩm");
+        }
+      }
     };
+    fetchProduct();
+  }, [productId, skuId]);
 
-    const newProduct = product?.skus.find(
-      (sku: any) =>
-        sku.attributes?.find(
-          (attr: any) => attr.type === "Color" && attr.value === filters.color
-        ) &&
-        sku.attributes?.find(
-          (attr: any) =>
-            attr.type === "Storage" && attr.value === filters.storage
-        )
-    );
-
-    if (newProduct) {
-      navigate(`/mobile/${productId}/${newProduct.id}`);
+  // Fetch Storage Attributes for the selected color
+  const fetchStorage = async (color: Attribute) => {
+    if (productId) {
+      try {
+        const response = await getStorage(+productId, color.value); // Pass color value to get storage
+        if (response.data.success) {
+          setStorageAttributes(response.data.data); // Assume the response is an array of Storage attributes
+          // Set default storage selection
+          if (response.data.data.length > 0) {
+            setSelectedStorage(response.data.data[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching storage:", error);
+        toast.error("Không thể tải thông tin dung lượng");
+      }
     }
   };
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const response = await getMyCart();
+        console.log(response.data);
+        setCartId(response.data.data[0].cartId);
+      } catch (error) {
+        console.error("Error fetching cart:", error);
+      }
+    };
+    fetchCart();
+  }, []);
 
   const handleAddItemToCart = async () => {
-    if (cartId === undefined) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+    if (!productData || !selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
 
-    if (product) {
-      const rs = await addItemToCart({
-        price: product.originalPrice.toString(),
-        cartId,
-        productItemId: product.id,
+    try {
+      const response = await addItemToCart({
+        cartId: cartId as number,
+        skuId: selectedStorage.skuId, // Use selectedStorage's skuId
         quantity: 1,
       });
 
-      if (rs.status === HttpStatusCode.Ok) {
+      if (response.status === HttpStatusCode.Ok) {
         toast.success("Thêm sản phẩm vào giỏ hàng thành công");
       }
+    } catch (error) {
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
     }
   };
 
   const handleBuyNow = async () => {
-    if (cartId === undefined) {
-      toast.error("Vui lòng đăng nhập để mua sản phẩm");
+    if (!selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
-
-    if (product) {
-      const rs = await orderCheckout({
-        productItems: [
-          {
-            image: product.image,
-            name: product.name,
-            price: product.originalPrice.toString(),
-            productItemId: 0,
-            quantity: 1,
-            SKU: product.skus[0].slug,
-          },
-        ],
-      });
-
-      if (rs.data.data) {
-        window.open(rs.data.data, "_blank");
-      }
-    }
+    console.log("Buy now with:", { selectedColor, selectedStorage });
+    // Add your logic for handling 'Buy Now'
   };
 
-  useEffect(() => {
-    const handleGetCart = async () => {
-      const rsp = await getMyCart();
-      setCartId(rsp.data.data.cartId);
-    };
+  if (!productData) {
+    return (
+      <>
+        <HomeHeader />
+        <div className="container pt-[80px] flex justify-center items-center min-h-[400px]">
+          Đang tải thông tin sản phẩm...
+        </div>
+        <HomeFooter />
+      </>
+    );
+  }
 
-    handleGetCart();
-  }, []);
-
-  useEffect(() => {
-    const handleGetProduct = async () => {
-      if (productId) {
-        const rsp = await getProductItems(productId);
-
-        if (rsp.data.success) {
-          setProduct(rsp.data.data);
-
-          const mColors = new Set<string>();
-          const mStorages = new Set<string>();
-
-          rsp.data.data.skus.forEach((sku: any) => {
-            sku.attributes.forEach((attr: any) => {
-              if (attr.attribute.type === "Color") {
-                mColors.add(attr.value);
-              }
-              if (attr.attribute.type === "Storage") {
-                mStorages.add(attr.value);
-              }
-            });
-          });
-
-          setColors(Array.from(mColors));
-          setStorages(Array.from(mStorages));
-        }
-      }
-    };
-
-    handleGetProduct();
-  }, [productId]);
+  const { product, attributes } = productData;
 
   return (
     <>
@@ -142,24 +165,28 @@ const DetailProduct = () => {
       <div className="container pt-[80px]">
         <div className="grid grid-cols-5 gap-6">
           <div className="col-span-2">
-            <div className="sticky top-4 bottom-0">
+            <div className="sticky top-4">
               <div className="flex flex-col gap-4">
-                <div className="flex justify-center items-center w-full p-4 border-[1px] rounded-md">
-                  <img className="w-[200px] h-auto" src={product?.image} />
+                <div className="flex justify-center items-center w-full p-4 border rounded-md">
+                  <img
+                    className="w-[200px] h-auto"
+                    src={product.skuImage || "placeholder-image.jpg"}
+                    alt={product.skuName}
+                  />
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     onClick={handleAddItemToCart}
                     className="bg-yellow-500 w-[46%] hover:bg-yellow-400 flex gap-2 items-center"
                   >
-                    <img className="w-[26px]" src={cartLogo} />
+                    <img className="w-[26px]" src={cartLogo} alt="cart" />
                     THÊM VÀO GIỎ HÀNG
                   </Button>
                   <Button
                     onClick={handleBuyNow}
                     className="bg-orange-500 w-[46%] hover:bg-orange-400 flex gap-2 items-center"
                   >
-                    <img className="w-[26px]" src={flashLogo} />
+                    <img className="w-[26px]" src={flashLogo} alt="flash" />
                     MUA NGAY
                   </Button>
                 </div>
@@ -167,61 +194,64 @@ const DetailProduct = () => {
             </div>
           </div>
           <div className="col-span-3 pb-12">
-            <div className="text-lg font-medium mb-2">{product?.name}</div>
+            <h1 className="text-lg font-medium mb-2">{product.name}</h1>
             <span className="font-semibold text-3xl">
-              {formatMoneyVND(product?.originalPrice || 0)}
+              {formatMoneyVND(
+                parseInt(selectedStorage?.price || product.price)
+              )}
             </span>
 
-            <div className="flex flex-col gap-4 mt-12">
-              <div className="flex items-center gap-4">
-                <p>Màu sắc</p>
-                <div className="flex items-center gap-4">
-                  {colors.map((color) => (
+            <div className="flex flex-col gap-6 mt-8">
+              {/* Product Specifications */}
+              <div className="bg-gray-50 p-4 rounded-md">
+                <h2 className="font-medium mb-3">Thông số kỹ thuật:</h2>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>Màn hình: {product.screenSize}</div>
+                  <div>Pin: {product.battery}</div>
+                  <div>Camera: {product.camera}</div>
+                  <div>CPU: {product.processor}</div>
+                  <div>Hệ điều hành: {product.os}</div>
+                </div>
+              </div>
+
+              {/* Color Selection */}
+              <div className="flex flex-col gap-2">
+                <p className="font-medium">Màu sắc</p>
+                <div className="flex items-center gap-4 flex-wrap">
+                  {attributes.Color.map((color) => (
                     <div
-                      key={color}
-                      onClick={() =>
-                        handleChooseProductItem({ type: "color", value: color })
-                      }
-                      className={`cursor-pointer px-4 py-1 border-2 rounded-sm ${
-                        product?.skus.find((sku: any) =>
-                          sku.attributes.some(
-                            (attr: any) =>
-                              attr.type === "Color" && attr.value === color
-                          )
-                        )
-                          ? " border-blue-500"
-                          : ""
+                      key={color.id}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        fetchStorage(color); // Fetch storage when color is selected
+                      }}
+                      className={`cursor-pointer px-4 py-2 border-2 rounded-md transition-all ${
+                        selectedColor?.id === color.id
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300"
                       }`}
                     >
-                      {color}
+                      {color.value}
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <p>Bộ nhớ</p>
-                <div className="flex items-center gap-4">
-                  {storages.map((storage) => (
+
+              {/* Storage Selection */}
+              <div className="flex flex-col gap-2">
+                <p className="font-medium">Dung lượng</p>
+                <div className="flex items-center gap-4 flex-wrap">
+                  {storageAttributes.map((storage) => (
                     <div
-                      key={storage}
-                      onClick={() =>
-                        handleChooseProductItem({
-                          type: "storage",
-                          value: storage,
-                        })
-                      }
-                      className={`cursor-pointer px-4 py-1 font-medium border-2 rounded-sm ${
-                        product?.skus.find((sku: any) =>
-                          sku.attributes.some(
-                            (attr: any) =>
-                              attr.type === "Storage" && attr.value === storage
-                          )
-                        )
-                          ? " border-blue-500"
-                          : ""
+                      key={storage.id}
+                      onClick={() => setSelectedStorage(storage)}
+                      className={`cursor-pointer px-4 py-2 border-2 rounded-md transition-all ${
+                        selectedStorage?.id === storage.id
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300"
                       }`}
                     >
-                      {storage}
+                      {storage.value}
                     </div>
                   ))}
                 </div>
