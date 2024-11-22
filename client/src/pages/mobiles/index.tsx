@@ -74,9 +74,9 @@ const Product = ({ product }: ProductProps) => {
           className="h-[200px] object-contain"
           src={product.skus.image || "/api/placeholder/200/200"}
           alt={product.skus.name}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/api/placeholder/200/200";
-          }}
+          // onError={(e) => {
+          //   (e.target as HTMLImageElement).src = "/api/placeholder/200/200";
+          // }}
         />
       </div>
       <div className="col-span-4 md:col-span-3 p-2">
@@ -148,7 +148,7 @@ const MobilesPage = () => {
     };
 
     fetchProducts();
-  }, [productId]);
+  }, []);
 
   useEffect(() => {
     const applyFilters = () => {
