@@ -4,7 +4,7 @@ import {
   ImportOrder,
   ImportOrderItem,
   ProductSerialData,
-} from "src/shared/database/schemas ";
+} from "src/shared/database/schemas";
 import { IImportOrderService } from "src/shared/interfaces/services";
 import {
   CreateImportOrderType,

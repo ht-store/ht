@@ -1,4 +1,4 @@
-import { Inventory } from "src/shared/database/schemas ";
+import { Inventory } from "src/shared/database/schemas";
 import { IRepository } from "./IRepository.interface";
 
 export interface IInventoryRepository extends IRepository<Inventory> {

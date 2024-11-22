@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
-import { Price, prices } from "src/shared/database/schemas ";
+import { Price, prices } from "src/shared/database/schemas";
 import { IPriceRepository } from "src/shared/interfaces/repositories";
 import { eq, and, desc } from "drizzle-orm";
 

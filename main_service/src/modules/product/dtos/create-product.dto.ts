@@ -7,7 +7,7 @@ import {
   IsDate,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { Sku } from "src/shared/database/schemas ";
+import { Sku } from "src/shared/database/schemas";
 import { SkuDto } from "./sku.dto";
 
 class ProductDto {

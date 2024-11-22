@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
-import { Supplier, suppliers } from "src/shared/database/schemas ";
+import { Supplier, suppliers } from "src/shared/database/schemas";
 import { ISupplierRepository } from "src/shared/interfaces/repositories";
 
 @injectable()

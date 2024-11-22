@@ -6,7 +6,7 @@ import {
   ImportOrderItem,
   importOrderItems,
   importOrders,
-} from "src/shared/database/schemas ";
+} from "src/shared/database/schemas";
 import {
   IImportOrderItemRepository,
   IImportOrderRepository,

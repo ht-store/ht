@@ -1,4 +1,4 @@
-import { Warehouse } from "src/shared/database/schemas ";
+import { Warehouse } from "src/shared/database/schemas";
 import { CreateWarehouseType, UpdateWarehouseType } from "src/shared/types";
 
 export interface IWarehouseService {

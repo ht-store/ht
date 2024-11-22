@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { Cart, CartItem, CreateCart } from "src/shared/database/schemas ";
+import { Cart, CartItem, CreateCart } from "src/shared/database/schemas";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import {
   ICartItemRepository,

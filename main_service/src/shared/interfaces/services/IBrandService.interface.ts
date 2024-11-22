@@ -1,4 +1,4 @@
-import { Brand, CreateBrand } from "src/shared/database/schemas ";
+import { Brand, CreateBrand } from "src/shared/database/schemas";
 
 export interface IBrandService {
   getBrands(): Promise<Brand[]>;

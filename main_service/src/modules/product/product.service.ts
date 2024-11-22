@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { CreateProduct, Product, Sku } from "src/shared/database/schemas ";
+import { CreateProduct, Product, Sku } from "src/shared/database/schemas";
 import { NotFoundError } from "src/shared/errors";
 import {
   IPriceRepository,

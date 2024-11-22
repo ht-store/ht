@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { Brand, CreateBrand } from "src/shared/database/schemas ";
+import { Brand, CreateBrand } from "src/shared/database/schemas";
 import { NotFoundError } from "src/shared/errors";
 import { IBrandRepository } from "src/shared/interfaces/repositories";
 import { IBrandService } from "src/shared/interfaces/services";

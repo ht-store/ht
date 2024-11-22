@@ -8,7 +8,7 @@ import {
   SkuAttribute,
   skuAttributes,
   skus,
-} from "src/shared/database/schemas ";
+} from "src/shared/database/schemas";
 import { ISkuAttributeRepository } from "src/shared/interfaces/repositories";
 import { logger } from "src/shared/middlewares";
 

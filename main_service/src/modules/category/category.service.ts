@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { Category } from "src/shared/database/schemas ";
+import { Category } from "src/shared/database/schemas";
 import { NotFoundError } from "src/shared/errors";
 import { ICategoryRepository } from "src/shared/interfaces/repositories";
 import { ICategoryService } from "src/shared/interfaces/services";

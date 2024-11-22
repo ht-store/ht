@@ -1,4 +1,4 @@
-import { ImportOrderItem } from "src/shared/database/schemas ";
+import { ImportOrderItem } from "src/shared/database/schemas";
 import { IRepository } from "./IRepository.interface";
 
 export interface IImportOrderItemRepository

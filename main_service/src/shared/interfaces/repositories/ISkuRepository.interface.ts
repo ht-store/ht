@@ -1,4 +1,4 @@
-import { Sku } from "src/shared/database/schemas ";
+import { Sku } from "src/shared/database/schemas";
 import { IRepository } from "./IRepository.interface";
 
 export interface ISkuRepository extends IRepository<Sku> {

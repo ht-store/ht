@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
-import { inventories, Inventory } from "src/shared/database/schemas ";
+import { inventories, Inventory } from "src/shared/database/schemas";
 import { IInventoryRepository } from "src/shared/interfaces/repositories";
 
 @injectable()

@@ -6,7 +6,7 @@ import {
   prices,
   Sku,
   skus,
-} from "src/shared/database/schemas ";
+} from "src/shared/database/schemas";
 import { IRepository } from "src/shared/interfaces/repositories/IRepository.interface";
 import { BasePropsType } from "src/shared/types";
 import { Repository } from "src/shared/base-repository";

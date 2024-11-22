@@ -1,4 +1,4 @@
-import { ImportOrder, ImportOrderItem } from "src/shared/database/schemas ";
+import { ImportOrder, ImportOrderItem } from "src/shared/database/schemas";
 import {
   CreateImportOrderItemResponseType,
   CreateImportOrderType,

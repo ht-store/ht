@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { CreateUser, User } from "src/shared/database/schemas ";
+import { CreateUser, User } from "src/shared/database/schemas";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import { hash } from "src/shared/helper/bcrypt.helper";
 import { IUserRepository } from "src/shared/interfaces/repositories";

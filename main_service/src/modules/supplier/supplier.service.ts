@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { Supplier } from "src/shared/database/schemas ";
+import { Supplier } from "src/shared/database/schemas";
 import { NotFoundError } from "src/shared/errors";
 import { ISupplierRepository } from "src/shared/interfaces/repositories";
 import { ISupplierService } from "src/shared/interfaces/services";

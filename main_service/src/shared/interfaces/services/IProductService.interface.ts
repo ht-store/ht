@@ -1,4 +1,4 @@
-import { CreateProduct, Product, Sku } from "src/shared/database/schemas ";
+import { CreateProduct, Product, Sku } from "src/shared/database/schemas";
 import {
   AttributesType,
   CreateProductType,

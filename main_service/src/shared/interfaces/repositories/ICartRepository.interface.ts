@@ -1,4 +1,4 @@
-import { Cart } from "src/shared/database/schemas ";
+import { Cart } from "src/shared/database/schemas";
 import { IRepository } from "./IRepository.interface";
 
 export interface ICartRepository extends IRepository<Cart> {

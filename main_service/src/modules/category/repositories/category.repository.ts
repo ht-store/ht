@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
-import { categories, Category } from "src/shared/database/schemas ";
+import { categories, Category } from "src/shared/database/schemas";
 import { ICategoryRepository } from "src/shared/interfaces/repositories";
 
 @injectable()

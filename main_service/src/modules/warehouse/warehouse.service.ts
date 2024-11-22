@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { Warehouse } from "src/shared/database/schemas ";
+import { Warehouse } from "src/shared/database/schemas";
 import { NotFoundError } from "src/shared/errors";
 import { IWarehouseRepository } from "src/shared/interfaces/repositories";
 import { IWarehouseService } from "src/shared/interfaces/services";

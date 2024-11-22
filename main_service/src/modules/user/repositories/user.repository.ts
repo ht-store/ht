@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
-import { User, users } from "src/shared/database/schemas ";
+import { User, users } from "src/shared/database/schemas";
 import { IUserRepository } from "src/shared/interfaces/repositories";
 import { eq } from "drizzle-orm";
 @injectable()

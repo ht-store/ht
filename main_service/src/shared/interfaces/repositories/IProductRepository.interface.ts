@@ -1,4 +1,4 @@
-import { Product } from "src/shared/database/schemas ";
+import { Product } from "src/shared/database/schemas";
 import { IRepository } from "./IRepository.interface";
 import { ProductWithRelation } from "src/shared/types/product.type";
 

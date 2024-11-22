@@ -1,4 +1,4 @@
-import { User } from "src/shared/database/schemas ";
+import { User } from "src/shared/database/schemas";
 import {
   LoginType,
   LoginResponseType,

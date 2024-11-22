@@ -8,7 +8,7 @@ import {
   carts,
   prices,
   skus,
-} from "src/shared/database/schemas ";
+} from "src/shared/database/schemas";
 import { ICartRepository } from "src/shared/interfaces/repositories";
 import { logger } from "src/shared/middlewares";
 

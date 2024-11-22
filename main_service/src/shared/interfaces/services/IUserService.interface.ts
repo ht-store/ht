@@ -1,4 +1,4 @@
-import { CreateUser, User } from "src/shared/database/schemas ";
+import { CreateUser, User } from "src/shared/database/schemas";
 
 export interface IUserService {
   getAllUsers(): Promise<User[]>;

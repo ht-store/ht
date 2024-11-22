@@ -1,4 +1,4 @@
-import * as schema from "./schemas ";
+import * as schema from "./schemas";
 import { Pool } from "pg";
 // import { neon } from '@neondatabase/serverless';
 import { drizzle } from "drizzle-orm/node-postgres";

@@ -1,4 +1,4 @@
-import { Category } from "src/shared/database/schemas ";
+import { Category } from "src/shared/database/schemas";
 import { CreateCategoryType, UpdateCategoryType } from "src/shared/types";
 
 export interface ICategoryService {

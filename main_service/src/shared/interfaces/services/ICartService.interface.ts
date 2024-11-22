@@ -1,4 +1,4 @@
-import { Cart, CartItem } from "src/shared/database/schemas ";
+import { Cart, CartItem } from "src/shared/database/schemas";
 import { AddItemType, UpdateCartType, UpdateItemType } from "src/shared/types";
 
 export interface ICartService {

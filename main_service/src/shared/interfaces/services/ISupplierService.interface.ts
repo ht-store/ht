@@ -1,4 +1,4 @@
-import { Supplier } from "src/shared/database/schemas ";
+import { Supplier } from "src/shared/database/schemas";
 import { CreateSupplierType, UpdateSupplierType } from "src/shared/types";
 
 export interface ISupplierService {
