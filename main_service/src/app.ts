@@ -8,6 +8,8 @@ import productRouter from "./modules/product/product.router";
 import cartRouter from "./modules/cart/cart.router";
 import warehouseRouter from "./modules/warehouse/warehouse.router";
 import supplierRouter from "./modules/supplier/supplier.router";
+import importOrderRouter from "./modules/import-order/import-order.router";
+import orderRouter from "./modules/order/order.router";
 
 export const expressApp = (app: Express) => {
   app.use("/users", userRouter);
@@ -18,6 +20,8 @@ export const expressApp = (app: Express) => {
   app.use("/cart", cartRouter);
   app.use("/warehouses", warehouseRouter);
   app.use("/suppliers", supplierRouter);
+  app.use("/import-orders", importOrderRouter);
+  app.use("/orders", orderRouter);
 
   app.use(errorHandler);
 };

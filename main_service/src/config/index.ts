@@ -62,7 +62,7 @@ const configuration: Config = {
   SECRET_KEY: process.env.SECRET_KEY!,
   WEBHOOK_SECRET: process.env.WEBHOOK_SECRET!,
   APP_PREFIX: process.env.APP_PREFIX!,
-  SUCCESS_URL: process.env.SUCCESS_URL!,
+  SUCCESS_URL: process.env.SUCCESS_URL || "http://localhost:3000/success",
   CANCEL_URL: process.env.CANCEL_URL!,
 };
 

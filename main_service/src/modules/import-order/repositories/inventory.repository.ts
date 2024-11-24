@@ -14,21 +14,23 @@ export class InventoryRepository
   }
 
   async updateQuanity(skuId: number, warehouseId: number, quantity: number) {
-    const [res] = await this.db
-      .insert(inventories)
-      .values({
-        skuId,
-        warehouseId,
-        quantity,
-      })
-      .onConflictDoUpdate({
-        target: [inventories.skuId, inventories.warehouseId],
-        set: {
-          quantity: sql`${inventories.quantity} + ${quantity}`,
-        },
-      })
-      .returning(); // Add returning() to get the result back
-    return res;
+    return this.db.transaction(async (tx) => {
+      const [res] = await tx
+        .insert(inventories)
+        .values({
+          skuId,
+          warehouseId,
+          quantity,
+        })
+        .onConflictDoUpdate({
+          target: [inventories.skuId, inventories.warehouseId],
+          set: {
+            quantity: sql`${inventories.quantity} + ${quantity}`,
+          },
+        })
+        .returning();
+      return res;
+    });
   }
 
   async reserveInventory(

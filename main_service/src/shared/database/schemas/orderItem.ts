@@ -25,6 +25,9 @@ export const orderItems = pgTable(
     skuId: integer("order_id")
       .references(() => skus.id)
       .notNull(),
+    serialId: integer("serial_id")
+      .references(() => productSerials.id)
+      .notNull(),
     quantity: integer("quantity").notNull(),
     price: decimal("price", { precision: 10, scale: 0 }).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -49,7 +52,11 @@ const orderItemRelations = relations(orderItems, ({ one, many }) => ({
   }),
   orderItemSerials: many(orderItemSerials),
   feedbacks: many(feedbacks),
+  productSerials: one(productSerials, {
+    fields: [orderItems.skuId],
+    references: [productSerials.id],
+  }),
 }));
 
-export type OrderDetail = InferSelectModel<typeof orderItems>;
-export type CreateOrderDetail = InferInsertModel<typeof orderItems>;
+export type OrderItem = InferSelectModel<typeof orderItems>;
+export type CreateOrderItem = InferInsertModel<typeof orderItems>;

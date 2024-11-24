@@ -1,4 +1,4 @@
-import { ImportOrder, ImportOrderItem, Sku } from "../database/schemas ";
+import { ImportOrder, ImportOrderItem, Sku } from "../database/schemas";
 
 export type CreateImportOderItemType = {
   importOrderId: string;

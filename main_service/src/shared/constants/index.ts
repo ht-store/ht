@@ -35,7 +35,7 @@ export const TYPES = {
   OrderRepository: Symbol.for("OrderRepository"),
   OrderService: Symbol.for("OrderService"),
   OrderController: Symbol.for("OrderController"),
-  OrderDetailRepository: Symbol.for("OrderDetailRepository"),
+  OrderItemRepository: Symbol.for("OrderItemRepository"),
   OrderDetailService: Symbol.for("OrderDetailService"),
   SkuRepository: Symbol.for("SkuRepository"),
   AttributeRepository: Symbol.for("AttributeRepository"),

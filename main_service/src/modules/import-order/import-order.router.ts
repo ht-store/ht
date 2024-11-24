@@ -1,23 +1,24 @@
-import { Router } from "express";
-import { TYPES } from "src/shared/constants";
+import express from "express";
 import { ImportOrderController } from "./import-order.controller";
 import container from "src/common/ioc-container";
+import { TYPES } from "src/shared/constants";
+import { auth } from "src/shared/middlewares";
 
-const importOderRouter = Router();
+const importOrderRouter = express.Router();
 const controller = container.get<ImportOrderController>(
   TYPES.ImportOrderController
 );
 
-// Define routes
-importOderRouter.post("/", controller.createImportOrder.bind(controller)); // Create import order
-importOderRouter.get("/", controller.getImportOrders.bind(controller)); // Get all import orders
-importOderRouter.get(
-  "/:importId/items",
+importOrderRouter.get(
+  "/:id/items",
   controller.getImportOrderItems.bind(controller)
-); // Get items of specific order
-importOderRouter.get(
-  "/items/:itemId/detail",
-  controller.getDetailImportOrder.bind(controller)
-); // Get detail of specific order item
+);
+importOrderRouter.get("/:id", controller.getDetailImportOrder.bind(controller));
+importOrderRouter.get("/", controller.getImportOrders.bind(controller));
+importOrderRouter.post(
+  "/",
+  auth,
+  controller.createImportOrder.bind(controller)
+);
 
-export default importOderRouter;
+export default importOrderRouter;

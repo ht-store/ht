@@ -15,6 +15,7 @@ export const productSerialStatusEnum = pgEnum("product_serial_status", [
   "inventory",
   "under warrantying",
   "sold",
+  "block",
 ]);
 
 export const productSerials = pgTable(

@@ -14,13 +14,14 @@ export const importOrderItems = pgTable(
   "import_order_items",
   {
     id: serial("id").primaryKey(),
-    importOrderId: integer("import_order_id").references(
-      () => importOrders.id,
-      { onDelete: "cascade" }
-    ),
-    skuId: integer("product_id").references(() => skus.id, {
-      onDelete: "cascade",
-    }),
+    importOrderId: integer("import_order_id")
+      .references(() => importOrders.id, { onDelete: "cascade" })
+      .notNull(),
+    skuId: integer("sku_id")
+      .references(() => skus.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
     quantity: integer("quantity").notNull().default(1),
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
     totalPrice: decimal("total_price", { precision: 10, scale: 2 }),

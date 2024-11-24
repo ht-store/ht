@@ -1,9 +1,4 @@
-import {
-  CreateProduct,
-  Product,
-  Sku,
-  SkuAttribute,
-} from "../database/schemas ";
+import { CreateProduct, Product, Sku, SkuAttribute } from "../database/schemas";
 
 export type ProductWithRelation = Product & {
   skus: Sku[];

@@ -8,3 +8,4 @@ export * from "./cart.type";
 export * from "./supplier.type";
 export * from "./warehouse.type";
 export * from "./import-order.type";
+export * from "./order.type";

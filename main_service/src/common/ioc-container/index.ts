@@ -4,23 +4,32 @@ import {
   IBrandService,
   ICartService,
   ICategoryService,
+  IImportOrderService,
+  IOrderService,
   IProductService,
   ISupplierService,
   IUserService,
   IWarehouseService,
 } from "src/shared/interfaces/services";
 import {
+  IUserRepository,
   IAttributeRepository,
   IBrandRepository,
   ICartItemRepository,
   ICartRepository,
   ICategoryRepository,
+  IImportOrderItemRepository,
+  IImportOrderRepository,
+  IInventoryRepository,
+  IOrderItemRepository,
+  IOrderRepository,
   IPriceRepository,
   IProductRepository,
+  IProductSerialRepository,
   ISkuAttributeRepository,
   ISkuRepository,
+  IStockMovementRepository,
   ISupplierRepository,
-  IUserRepository,
   IWarehouseRepository,
 } from "src/shared/interfaces/repositories";
 import { Container } from "inversify";
@@ -60,6 +69,21 @@ import {
   SupplierRepository,
   SupplierService,
 } from "src/modules/supplier";
+import {
+  ImportOrderController,
+  ImportOrderItemRepository,
+  ImportOrderRepository,
+  ImportOrderService,
+  InventoryRepository,
+  ProductSerialRepository,
+  StockMovementRepository,
+} from "src/modules/import-order";
+import {
+  OrderController,
+  OrderItemRepository,
+  OrderRepository,
+  OrderService,
+} from "src/modules/order";
 
 const container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
@@ -109,9 +133,32 @@ container.bind(TYPES.CartController).to(CartController);
 container
   .bind<ICartItemRepository>(TYPES.CartItemRepository)
   .to(CartItemRepository);
-container;
-//   .bind<IInventoryRepository>(INTERFACE_NAME.InventoryRepository)
-//   .to(InventoryRepository);
+container
+  .bind<IProductSerialRepository>(TYPES.ProductSerialRepository)
+  .to(ProductSerialRepository);
+container
+  .bind<IInventoryRepository>(TYPES.InventoryRepository)
+  .to(InventoryRepository);
+container
+  .bind<IStockMovementRepository>(TYPES.StockMovementRepository)
+  .to(StockMovementRepository);
+container
+  .bind<IImportOrderItemRepository>(TYPES.ImportOrderItemRepository)
+  .to(ImportOrderItemRepository);
+container
+  .bind<IImportOrderRepository>(TYPES.ImportOrderRepository)
+  .to(ImportOrderRepository);
+container
+  .bind<IImportOrderService>(TYPES.ImportOrderService)
+  .to(ImportOrderService);
+container.bind(TYPES.ImportOrderController).to(ImportOrderController);
+container
+  .bind<IOrderItemRepository>(TYPES.OrderItemRepository)
+  .to(OrderItemRepository);
+container.bind<IOrderRepository>(TYPES.OrderRepository).to(OrderRepository);
+container.bind<IOrderService>(TYPES.OrderService).to(OrderService);
+container.bind(TYPES.OrderController).to(OrderController);
+
 // container
 //   .bind<IInventoryService>(INTERFACE_NAME.InventoryService)
 //   .to(InventoryService);

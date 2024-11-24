@@ -15,3 +15,5 @@ export * from "./IImportOrderRepository.interface";
 export * from "./IImportOrderItemRepository.interface";
 export * from "./IInventoryRepository.interface";
 export * from "./IStockMovementRepository.interface";
+export * from "./IOrderRepository.interface";
+export * from "./IOrderItemRepository.interface";

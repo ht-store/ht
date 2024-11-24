@@ -1,72 +1,81 @@
 import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
-import { TYPES } from "src/shared/constants";
-import { ImportOrderService } from "./import-order.service";
-import { CreateImportOrderType } from "src/shared/types";
-import { BaseResponse } from "src/common/responses";
-import { BadRequestError } from "src/shared/errors";
+import { TYPES, STATUS_CODES } from "src/shared/constants";
+import { logger } from "src/shared/middlewares";
+import { IImportOrderService } from "src/shared/interfaces/services";
+import { CreateImportOrderDto } from "./dtos";
 
 @injectable()
 export class ImportOrderController {
   constructor(
     @inject(TYPES.ImportOrderService)
-    private importOrderService: ImportOrderService
+    private importOrderService: IImportOrderService
   ) {}
 
-  // Create Import Order
+  // Tạo đơn nhập hàng mới
   async createImportOrder(req: Request, res: Response, next: NextFunction) {
     try {
-      const data: CreateImportOrderType = req.body; // Assuming body is already validated
-      const result = await this.importOrderService.createImportOrder(data);
-      return res
-        .status(201)
-        .json(BaseResponse.success("Create import order success", result)); // Return created resource
+      const body = <CreateImportOrderDto>req.body;
+      console.log(req.body);
+      const importOrder = await this.importOrderService.createImportOrder(body);
+
+      return res.status(STATUS_CODES.CREATED).json({
+        success: true,
+        message: "Import order created successfully.",
+        data: importOrder,
+      });
     } catch (error) {
+      logger.error("Error in createImportOrder", error);
       next(error);
     }
   }
 
-  // Get All Import Orders
+  // Lấy danh sách đơn nhập hàng
   async getImportOrders(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.importOrderService.getImportOrders();
-      return res
-        .status(200)
-        .json(BaseResponse.success("Get all import orders success", result));
+      const importOrders = await this.importOrderService.getImportOrders();
+
+      return res.status(STATUS_CODES.OK).json({
+        success: true,
+        message: "Import orders retrieved successfully.",
+        data: importOrders,
+      });
     } catch (error) {
+      logger.error("Error in getImportOrders", error);
       next(error);
     }
   }
 
-  // Get Import Order Items
+  // Lấy chi tiết các mặt hàng trong đơn nhập
   async getImportOrderItems(req: Request, res: Response, next: NextFunction) {
     try {
-      const importId = parseInt(req.params.importId, 10);
-      if (isNaN(importId)) {
-        throw new BadRequestError("Invalid import ID");
-      }
-      const result =
-        await this.importOrderService.getImportOrderItems(importId);
-      return res
-        .status(200)
-        .json(BaseResponse.success("Get import order items success", result));
+      const importId = +req.params.importId;
+      const items = await this.importOrderService.getImportOrderItems(importId);
+
+      return res.status(STATUS_CODES.OK).json({
+        success: true,
+        message: "Import order items retrieved successfully.",
+        data: items,
+      });
     } catch (error) {
+      logger.error("Error in getImportOrderItems", error);
       next(error);
     }
   }
 
-  // Get Detail of Import Order Item
+  // Lấy chi tiết một mặt hàng nhập
   async getDetailImportOrder(req: Request, res: Response, next: NextFunction) {
     try {
-      const itemId = parseInt(req.params.itemId, 10);
-      if (isNaN(itemId)) {
-        throw new BadRequestError("Invalid import ID");
-      }
-      const result = await this.importOrderService.getDetailImportOrder(itemId);
-      return res
-        .status(200)
-        .json(BaseResponse.success("Get import order detail success", result));
+      const itemId = +req.params.itemId;
+      const item = await this.importOrderService.getDetailImportOrder(itemId);
+
+      return res.status(STATUS_CODES.OK).json({
+        success: true,
+        message: "Import order item detail retrieved successfully.",
+        data: item,
+      });
     } catch (error) {
+      logger.error("Error in getDetailImportOrder", error);
       next(error);
     }
   }

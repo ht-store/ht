@@ -26,7 +26,7 @@ export class ImportOrderService implements IImportOrderService {
   constructor(
     @inject(TYPES.ImportOrderRepository)
     private importOrderRepository: ImportOrderRepository,
-    @inject(TYPES.ImportOrderRepository)
+    @inject(TYPES.ImportOrderItemRepository)
     private importOrderItemRepository: IImportOrderItemRepository,
     @inject(TYPES.SkuRepository)
     private skuRepository: ISkuRepository,
@@ -42,18 +42,23 @@ export class ImportOrderService implements IImportOrderService {
     data: CreateImportOrderType
   ): Promise<CreateImportOrderItemResponseType> {
     try {
+      const orderDate =
+        data.importDate || new Date().toISOString().split("T")[0];
       const { importOrderItems } = data;
       const order = await this.importOrderRepository.add({
-        orderDate: data.importDate,
+        orderDate: orderDate,
         supplierId: data.supplierId,
         status: data.status,
         totalAmount: importOrderItems
           .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
           .toFixed(2),
       });
+      console.log(order);
+
       const items = await Promise.all(
         importOrderItems.map(async (item) => {
           const { skuId, quantity, unitPrice } = item;
+          console.log(item);
           const itemOrder = await this.importOrderItemRepository.add({
             importOrderId: order.id,
             skuId,
@@ -64,7 +69,9 @@ export class ImportOrderService implements IImportOrderService {
           return itemOrder;
         })
       );
+      console.log(items);
 
+      await this.importStock(order.id, items, data.importDate);
       return {
         ...order,
         items,
@@ -108,7 +115,7 @@ export class ImportOrderService implements IImportOrderService {
 
   private async importStock(
     importOrderId: number,
-    items: { skuId: number; quantity: number; price: number }[],
+    items: { skuId: number; quantity: number; price: string }[],
     importDate: string
   ) {
     for (const item of items) {
@@ -139,20 +146,19 @@ export class ImportOrderService implements IImportOrderService {
       const { skuId, quantity } = item;
 
       // Tạo serial numbers cho từng sản phẩm
-      const serialNumbers: ProductSerialData[] = [];
+      const serialNumbers = [];
 
       // Tạo serials theo định dạng SKU-YYYYMMDD-XXXX
       for (let i = 0; i < quantity; i++) {
         const serialNumber = `${skuId}-${dateFormatted}-${String(i + 1).padStart(4, "0")}`;
 
-        serialNumbers.push({
+        await this.productSerialRepository.add({
           skuId,
           serialNumber,
           status: "inventory", // Mặc định là "inventory" khi nhập kho
         });
       }
 
-      await this.productSerialRepository.add(serialNumbers);
       // Lưu serial vào cơ sở dữ liệu
     }
   }
