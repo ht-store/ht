@@ -34,6 +34,9 @@ interface Config {
   APP_PREFIX: string;
   SUCCESS_URL: string;
   CANCEL_URL: string;
+  KAFKA_CLIENT_ID: string;
+  KAFKA_GROUP_ID: string;
+  KAFKA_BROKERS: string[];
 }
 
 const configuration: Config = {
@@ -64,6 +67,9 @@ const configuration: Config = {
   APP_PREFIX: process.env.APP_PREFIX!,
   SUCCESS_URL: process.env.SUCCESS_URL || "http://localhost:3000/success",
   CANCEL_URL: process.env.CANCEL_URL!,
+  KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "main_service",
+  KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "main_service_group",
+  KAFKA_BROKERS: [process.env.KAFKA_BROKER_1 || "localhost:9092"],
 };
 
 export default configuration;
