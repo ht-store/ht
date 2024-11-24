@@ -4,10 +4,11 @@ import {
   LoginResponseType,
   RegisterType,
   TokenType,
+  RegisterResponseType,
 } from "src/shared/types/auth.type";
 
 export interface IAuthService {
-  register(registerData: RegisterType): Promise<User>;
+  register(registerData: RegisterType): Promise<RegisterResponseType>;
   login(loginData: LoginType): Promise<LoginResponseType>;
   logout(userId: number): Promise<boolean>;
   refreshToken(

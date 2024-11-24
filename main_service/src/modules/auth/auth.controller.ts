@@ -6,6 +6,8 @@ import { RegisterDto } from "./dtos/register-dto";
 import { LoginDto } from "./dtos/login-dto";
 import { BaseResponse } from "src/common/responses";
 import { IAuthService } from "src/shared/interfaces/services";
+import { MessageBroker } from "src/common/utils";
+import { UserEvent } from "src/shared/types";
 @injectable()
 export class AuthController {
   constructor(@inject(TYPES.AuthService) private authService: IAuthService) {}
@@ -14,6 +16,14 @@ export class AuthController {
     try {
       const body = <RegisterDto>req.body;
       const data = await this.authService.register(body);
+      await MessageBroker.publish({
+        topic: "UserEvents",
+        headers: {
+          token: data.email,
+        },
+        event: UserEvent.REGISTER_USER,
+        message: data,
+      });
       return res
         .status(STATUS_CODES.CREATED)
         .json(BaseResponse.success("Register successfully", data));

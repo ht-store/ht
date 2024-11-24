@@ -15,8 +15,10 @@ import {
   IUserService,
 } from "src/shared/interfaces/services";
 import {
+  EmailOptions,
   LoginResponseType,
   LoginType,
+  RegisterResponseType,
   RegisterType,
   TokenType,
 } from "src/shared/types";
@@ -30,9 +32,20 @@ export class AuthService implements IAuthService {
     private cartRepository: ICartRepository
   ) {}
 
-  async register(registerData: RegisterType): Promise<User> {
+  async register(registerData: RegisterType): Promise<RegisterResponseType> {
     try {
-      return await this.userService.createUser(registerData);
+      const user = await this.userService.createUser(registerData);
+
+      const emailOptions: EmailOptions = {
+        email: user.email,
+        subject: "Kích hoạt tài khoản của bạn",
+        template: "activation-mail.ejs",
+        data: user,
+      };
+      return {
+        ...user,
+        emailOptions,
+      };
     } catch (error) {
       throw error;
     }
