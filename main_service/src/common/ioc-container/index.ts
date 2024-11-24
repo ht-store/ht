@@ -10,6 +10,7 @@ import {
   ISupplierService,
   IUserService,
   IWarehouseService,
+  IWarrantyService,
 } from "src/shared/interfaces/services";
 import {
   IUserRepository,
@@ -31,6 +32,10 @@ import {
   IStockMovementRepository,
   ISupplierRepository,
   IWarehouseRepository,
+  IWarrantyRepository,
+  IWarrantyClaimRepository,
+  IWarrantyClaimCostRepository,
+  IProductSellWarrantyRepository,
 } from "src/shared/interfaces/repositories";
 import { Container } from "inversify";
 import { UserController, UserRepository, UserService } from "src/modules/user";
@@ -84,6 +89,14 @@ import {
   OrderRepository,
   OrderService,
 } from "src/modules/order";
+import {
+  ProductSellWarrantyRepository,
+  WarrantyClaimCostRepository,
+  WarrantyClaimRepository,
+  WarrantyController,
+  WarrantyRepository,
+  WarrantyService,
+} from "src/modules/warranty";
 
 const container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
@@ -158,21 +171,18 @@ container
 container.bind<IOrderRepository>(TYPES.OrderRepository).to(OrderRepository);
 container.bind<IOrderService>(TYPES.OrderService).to(OrderService);
 container.bind(TYPES.OrderController).to(OrderController);
-
-// container
-//   .bind<IInventoryService>(INTERFACE_NAME.InventoryService)
-//   .to(InventoryService);
-// container.bind(INTERFACE_NAME.InventoryController).to(InventoryController);
-// container
-//   .bind<IStockMovementRepository>(INTERFACE_NAME.StockMovementRepository)
-//   .to(StockMovementRepository);
-// container
-//   .bind<IImportOrderRepository>(INTERFACE_NAME.ImportOrderRepository)
-//   .to(ImportOrderRepository);
-// container
-//   .bind<IImportOrderService>(INTERFACE_NAME.ImportOrderService)
-//   .to(ImportOrderService);
-// container
-//   .bind<IImportOrderItemRepository>(INTERFACE_NAME.ImportOrderItemRepository)
-//   .to(ImportOrderItemRepository);
+container
+  .bind<IWarrantyClaimRepository>(TYPES.WarrantyClaimRepository)
+  .to(WarrantyClaimRepository);
+container
+  .bind<IWarrantyRepository>(TYPES.WarrantyRepository)
+  .to(WarrantyRepository);
+container
+  .bind<IWarrantyClaimCostRepository>(TYPES.WarrantyClaimCostRepository)
+  .to(WarrantyClaimCostRepository);
+container
+  .bind<IProductSellWarrantyRepository>(TYPES.ProductSellWarrantyRepository)
+  .to(ProductSellWarrantyRepository);
+container.bind<IWarrantyService>(TYPES.WarrantyService).to(WarrantyService);
+container.bind(TYPES.WarrantyController).to(WarrantyController);
 export default container;

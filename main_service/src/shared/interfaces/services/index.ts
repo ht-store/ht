@@ -8,3 +8,4 @@ export * from "./ISupplierService.interface";
 export * from "./IWareHouseService.interface";
 export * from "./IImportOrderService.interface";
 export * from "./IOrderService.interface";
+export * from "./IWarrantyService.interface";

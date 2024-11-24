@@ -17,3 +17,7 @@ export * from "./IInventoryRepository.interface";
 export * from "./IStockMovementRepository.interface";
 export * from "./IOrderRepository.interface";
 export * from "./IOrderItemRepository.interface";
+export * from "./IWarrantyRepository.interface";
+export * from "./IProductSellWarrantyRepository.interface";
+export * from "./IWarranyClaimRepository.interface";
+export * from "./IWarrantyClaimCostRepository.interface";
