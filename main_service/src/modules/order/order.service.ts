@@ -7,6 +7,7 @@ import {
   PaymentType,
 } from "src/shared/types";
 import {
+  IInventoryRepository,
   IOrderItemRepository,
   IOrderRepository,
   IProductSerialRepository,
@@ -34,7 +35,9 @@ export class OrderService implements IOrderService {
     private orderItemRepo: IOrderItemRepository,
     @inject(TYPES.UserRepository) private userRepository: IUserRepository,
     @inject(TYPES.ProductSerialRepository)
-    private productSerialRepository: IProductSerialRepository
+    private productSerialRepository: IProductSerialRepository,
+    @inject(TYPES.InventoryRepository)
+    private inventoryRepository: IInventoryRepository
   ) {
     this.stripe = new Stripe(
       "sk_test_51NrvBlBRW0tzi9hCKyOzdVSm5bMrlprFwyrXbzDI2OhI2gZFfJPpw0kr8981x0p3EhYo7ysXMGriS8TAoKTrqnDk00kqf5mes6",
@@ -168,6 +171,11 @@ export class OrderService implements IOrderService {
           await this.productSerialRepository.update(serial.id, {
             status: "sold",
           });
+          await this.inventoryRepository.updateQuanity(
+            +item.price_data.product_data.metadata.skuId,
+            1,
+            -1
+          );
         }
         // if (checkoutDto.cartId) {
         //   await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
@@ -335,6 +343,11 @@ export class OrderService implements IOrderService {
             await this.productSerialRepository.update(serial.id, {
               status: "sold",
             });
+            await this.inventoryRepository.updateQuanity(
+              productItem.skuId,
+              1,
+              -1
+            );
           })
         );
 
