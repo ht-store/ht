@@ -38,8 +38,8 @@ export class AuthService implements IAuthService {
 
       const emailOptions: EmailOptions = {
         email: user.email,
-        subject: "Kích hoạt tài khoản của bạn",
-        template: "activation-mail.ejs",
+        subject: "Đăng ký tài khoản thành công",
+        template: "register-mail.ejs",
         data: user,
       };
       return {
