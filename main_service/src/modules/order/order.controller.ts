@@ -110,10 +110,10 @@ export class OrderController {
         userId,
         paymentType
       );
-
+      console.log(checkoutUrl);
       res.status(200).json({
         success: true,
-        data: { url: checkoutUrl },
+        data: checkoutUrl,
       });
     } catch (error) {
       next(error);

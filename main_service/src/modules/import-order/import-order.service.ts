@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
+import { v4 as uuidv4 } from "uuid";
 import {
   ImportOrder,
   ImportOrderItem,
@@ -145,13 +146,8 @@ export class ImportOrderService implements IImportOrderService {
 
       const { skuId, quantity } = item;
 
-      // Tạo serial numbers cho từng sản phẩm
-      const serialNumbers = [];
-
-      // Tạo serials theo định dạng SKU-YYYYMMDD-XXXX
       for (let i = 0; i < quantity; i++) {
-        const serialNumber = `${skuId}-${dateFormatted}-${String(i + 1).padStart(4, "0")}`;
-
+        const serialNumber = uuidv4(); // Tạo UUID duy nhất
         await this.productSerialRepository.add({
           skuId,
           serialNumber,

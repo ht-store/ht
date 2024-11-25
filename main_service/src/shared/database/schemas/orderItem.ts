@@ -22,7 +22,7 @@ export const orderItems = pgTable(
     orderId: integer("order_id")
       .references(() => orders.id)
       .notNull(),
-    skuId: integer("order_id")
+    skuId: integer("sku_id")
       .references(() => skus.id)
       .notNull(),
     serialId: integer("serial_id")

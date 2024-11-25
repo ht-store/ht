@@ -252,6 +252,8 @@ export class OrderService implements IOrderService {
         }
         // Add other webhook events as needed
         default:
+          const session = event.data.object as Stripe.Checkout.Session;
+          await this.handleCompletedCheckoutSession(session);
           logger.info(`Unhandled event type: ${event.type}`);
       }
     } catch (error) {
@@ -305,70 +307,62 @@ export class OrderService implements IOrderService {
       };
 
       // Start transaction
-      const order = await DB.transaction(async (trx) => {
-        // Create order
-        const newOrder = await this.orderRepo.add(orderData);
+      // Create order
+      const newOrder = await this.orderRepo.add(orderData);
 
-        // Process each line item
-        await Promise.all(
-          lineItems.data.map(async (item, index) => {
-            if (!item.price?.unit_amount || !item.quantity) {
-              throw new Error(`Invalid line item data for item ${index}`);
-            }
+      // Process each line item
+      await Promise.all(
+        lineItems.data.map(async (item, index) => {
+          if (!item.price?.unit_amount || !item.quantity) {
+            throw new Error(`Invalid line item data for item ${index}`);
+          }
 
-            const productItem = productItems[index];
+          const productItem = productItems[index];
 
-            // Get available product serials
+          // Get available product serials
 
-            // Create order detail
-            const serial = await this.productSerialRepository.findFirstBySkuId(
-              productItem.skuId
+          // Create order detail
+          const serial = await this.productSerialRepository.findFirstBySkuId(
+            productItem.skuId
+          );
+          if (!serial) {
+            throw new Error(
+              `No available serials for SKU ID ${productItem.skuId}`
             );
-            if (!serial) {
-              throw new Error(
-                `No available serials for SKU ID ${productItem.skuId}`
-              );
-            }
-            const orderDetailData = {
-              orderId: newOrder.id,
-              skuId: productItem.skuId,
-              quantity: item.quantity,
-              price: item.price.unit_amount.toString(),
-              serialId: serial.id,
-            };
+          }
+          const orderDetailData = {
+            orderId: newOrder.id,
+            skuId: productItem.skuId,
+            quantity: item.quantity,
+            price: item.price.unit_amount.toString(),
+            serialId: serial.id,
+          };
+          console.log(orderDetailData);
+          await this.orderItemRepo.add(orderDetailData);
+          console.log("+++++++++++++++");
+          // Update inventory quantity
+          await this.productSerialRepository.update(serial.id, {
+            status: "sold",
+          });
+          await this.inventoryRepository.updateQuanity(
+            productItem.skuId,
+            1,
+            -1
+          );
+        })
+      );
 
-            await this.orderItemRepo.add(orderDetailData);
+      // Clear cart items if cart ID exists
 
-            // Update inventory quantity
-            await this.productSerialRepository.update(serial.id, {
-              status: "sold",
-            });
-            await this.inventoryRepository.updateQuanity(
-              productItem.skuId,
-              1,
-              -1
-            );
-          })
-        );
-
-        // Clear cart items if cart ID exists
-
-        // Update order status
-        await this.orderRepo.update(newOrder.id, {
-          orderStatus: OrderStatus.PROCESSING,
-        });
-
-        return newOrder;
+      // Update order status
+      await this.orderRepo.update(newOrder.id, {
+        orderStatus: OrderStatus.PROCESSING,
       });
 
       // Send order confirmation
       // await this.sendOrderConfirmation(order);
     } catch (error) {
-      logger.error("Error handling completed checkout session:", {
-        error: error instanceof Error ? error.message : "Unknown error",
-        sessionId: session.id,
-        customerId: session.metadata?.customer_id,
-      });
+      logger.error("Error handling completed checkout session:", error);
 
       // Initiate refund if needed
       if (session.payment_intent) {

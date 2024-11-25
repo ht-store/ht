@@ -63,7 +63,9 @@ const configuration: Config = {
   S3_SECRET_KEY: process.env.S3_SECRET_KEY!,
   PUBLIC_KEY: process.env.PUBLIC_KEY!,
   SECRET_KEY: process.env.SECRET_KEY!,
-  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET!,
+  WEBHOOK_SECRET:
+    process.env.WEBHOOK_SECRET! ||
+    "whsec_a070cf94b034316f1aed34019fb80b0d83ad73d0775b4c5c0ae6806dd0f85d9a",
   APP_PREFIX: process.env.APP_PREFIX!,
   SUCCESS_URL: process.env.SUCCESS_URL || "http://localhost:3000/success",
   CANCEL_URL: process.env.CANCEL_URL!,
