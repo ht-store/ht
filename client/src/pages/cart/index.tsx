@@ -73,20 +73,21 @@ const CartPage = () => {
   };
 
   const handleCheckout = async () => {
+    console.log(cartItems);
     if (cartId === undefined) {
       toast.error("Xin vui lòng đăng nhập mua sản phẩm");
       return;
     }
-
     const rs = await orderCheckout({
       cartId: cartId,
-      productItems: cartItems
+      items: cartItems
         .filter((cartItem) => cartItem.isSelect)
         .map((cartItem) => ({
           name: cartItem.productName,
           image: cartItem.productImage,
-          SKU: cartItem.skuId.toString(), // Using skuId as SKU
+          skuId: cartItem.skuId,
           quantity: cartItem.quantity,
+          price: cartItem.price,
         })),
     });
 
