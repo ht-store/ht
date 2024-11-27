@@ -24,7 +24,7 @@ export class UserController {
 
   async getAllCustomers(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.userService.getAllUsers();
+      const data = await this.userService.getAllCustomers();
       return res
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Get all users successfully", data));
@@ -36,7 +36,7 @@ export class UserController {
 
   async getAllEmployees(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.userService.getAllUsers();
+      const data = await this.userService.getAllEmployees();
       return res
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Get all users successfully", data));

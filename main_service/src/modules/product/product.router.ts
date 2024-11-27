@@ -9,7 +9,7 @@ import { auth } from "src/shared/middlewares";
 const productRouter = express.Router();
 const controller = container.get<ProductController>(TYPES.ProductController);
 
-// productRouter.get("/all", controller.getProducts.bind(controller));
+productRouter.get("/all", controller.getProducts.bind(controller));
 productRouter.get("/:id", controller.getProduct.bind(controller));
 productRouter.get("/", controller.getSkus.bind(controller));
 productRouter.get(

@@ -48,7 +48,7 @@ export class UserService implements IUserService {
 
   async getAllCustomers(): Promise<User[]> {
     try {
-      return await this.userRepository.findByRoleId(5);
+      return await this.userRepository.findByRoleId(2);
     } catch (error) {
       throw error;
     }
@@ -56,7 +56,7 @@ export class UserService implements IUserService {
 
   async getAllEmployees(): Promise<User[]> {
     try {
-      return await this.userRepository.findByRoleId(2);
+      return await this.userRepository.findByRoleId(1);
     } catch (error) {
       throw error;
     }

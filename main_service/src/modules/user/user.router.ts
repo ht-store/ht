@@ -22,14 +22,12 @@ userRouter.get(
   // validateAdmin,
   controller.getAllEmployees.bind(controller)
 );
-
 userRouter.get(
   "/",
   auth,
   // validateAdmin,
   controller.getAllUsers.bind(controller)
 );
-
 userRouter.get(
   "/:id",
   auth,

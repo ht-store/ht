@@ -67,6 +67,7 @@ export class SupplierController {
   async updateSupplier(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.id);
     const updateSupplierDto = <UpdateSupplierDto>req.body;
+    console.log(updateSupplierDto);
     try {
       const updatedSupplier = await this.supplierService.updateSupplier(
         id,
