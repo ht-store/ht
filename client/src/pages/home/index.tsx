@@ -18,6 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
 
 // Types
 export type SkuType = {
@@ -52,16 +53,24 @@ export type BrandType = {
   updatedAt: string;
 };
 
-// Separate Brand Component
+// Brand Component
 const BrandButtons = ({
   brands,
   activeBrand,
   onBrandSelect,
+  onSearch,
 }: {
   brands: BrandType[];
   activeBrand: string;
   onBrandSelect: (brandId: number) => void;
+  onSearch: (searchTerm: string) => void;
 }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchClick = () => {
+    onSearch(searchTerm); // Truyền giá trị tìm kiếm lên component chính
+  };
+
   return (
     <div className="flex items-center justify-between">
       <span className="text-xl font-bold">ĐIỆN THOẠI NỔI BẬT NHẤT</span>
@@ -77,6 +86,20 @@ const BrandButtons = ({
           </Button>
         ))}
       </div>
+      <div className="flex items-center gap-2">
+        <Input
+          className="w-[400px] h-[34px] rounded-lg focus-visible:ring-transparent focus-visible:ring-offset-0 border-none"
+          placeholder="Bạn cần tìm gì?"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Button
+          className="h-[34px] px-4 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+          onClick={handleSearchClick}
+        >
+          Tìm kiếm
+        </Button>
+      </div>
     </div>
   );
 };
@@ -85,10 +108,10 @@ const HomePage = () => {
   const [products, setProducts] = useState<ProductDataType[]>([]);
   const [brands, setBrands] = useState<BrandType[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const phoneType = searchParams.get("phone_type") || "";
+  const searchTerm = searchParams.get("search") || "";
   const page = searchParams.get("page") || "1";
-
   const navigate = useNavigate();
 
   // Fetch brands
@@ -112,15 +135,14 @@ const HomePage = () => {
     const handleGetProducts = async () => {
       try {
         const rsp = await getProducts({
-          name: phoneType,
+          name: searchTerm,
           pageSize: 18,
           page: parseInt(page),
         });
 
         if (rsp.status === HttpStatusCode.Ok) {
           setProducts(rsp.data.data);
-          // You might want to update how totalPages is calculated based on your API response
-          setTotalPages(totalPages || 1);
+          setTotalPages(rsp.data.totalPages || 1);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -131,7 +153,19 @@ const HomePage = () => {
   }, [searchParams]);
 
   const handleBrandSelect = (brandId: number) => {
-    navigate(`?${new URLSearchParams({ phone_type: brandId.toString() })}`);
+    setSearchParams({
+      phone_type: brandId.toString(),
+      search: searchTerm,
+      page: "1",
+    });
+  };
+
+  const handleSearch = (search: string) => {
+    setSearchParams({
+      phone_type: phoneType,
+      search: search,
+      page: "1",
+    });
   };
 
   const getProductPrice = (product: ProductDataType) => {
@@ -149,6 +183,7 @@ const HomePage = () => {
             brands={brands}
             activeBrand={phoneType}
             onBrandSelect={handleBrandSelect}
+            onSearch={handleSearch}
           />
 
           {/* Products Grid */}
@@ -177,6 +212,7 @@ const HomePage = () => {
                   href={`?${new URLSearchParams({
                     page: String(parseInt(page) - 1),
                     phone_type: phoneType,
+                    search: searchTerm,
                   })}`}
                 />
               </PaginationItem>
@@ -192,6 +228,7 @@ const HomePage = () => {
                       href={`?${new URLSearchParams({
                         page: String(curPage + e),
                         phone_type: phoneType,
+                        search: searchTerm,
                       })}`}
                     >
                       {curPage + e}
@@ -208,6 +245,7 @@ const HomePage = () => {
                   href={`?${new URLSearchParams({
                     page: String(parseInt(page) + 1),
                     phone_type: phoneType,
+                    search: searchTerm,
                   })}`}
                 />
               </PaginationItem>

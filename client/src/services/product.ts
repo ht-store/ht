@@ -52,3 +52,10 @@ export const getStorage = async (
     throw error;
   }
 };
+
+export const searchProducts = async (
+  productId: number,
+  skuId: number
+): Promise<AxiosResponse> =>
+  request.get(`/products/details/${productId}/${skuId}`);
+

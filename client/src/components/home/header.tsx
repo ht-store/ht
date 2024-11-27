@@ -17,7 +17,7 @@ import {
 const headerListItem = [
   {
     logo: phoneLogo,
-    name: 'Gọi mua hàng',
+    name: 'Bảo hành',
     href: '#'
   },
   {
@@ -36,7 +36,6 @@ export const HomeHeader = () => {
       <div className="container flex items-center justify-between h-[64px]">
         <div className="relative flex items-center gap-6">
           <Logo className="text-white text-4xl relative -top-1" />
-          <Input className="w-[260px] h-[34px] rounded-lg focus-visible:ring-transparent focus-visible:ring-offset-0 border-none" placeholder="Bạn cần tìm gì?" />
         </div>
         <div className="flex">
           {
