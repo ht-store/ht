@@ -7,6 +7,7 @@ import {
   IImportOrderService,
   IOrderService,
   IProductService,
+  IStatisticService,
   ISupplierService,
   IUserService,
   IWarehouseService,
@@ -97,6 +98,7 @@ import {
   WarrantyRepository,
   WarrantyService,
 } from "src/modules/warranty";
+import { StatisticController, StatisticService } from "src/modules/statistic";
 
 const container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
@@ -185,4 +187,6 @@ container
   .to(ProductSellWarrantyRepository);
 container.bind<IWarrantyService>(TYPES.WarrantyService).to(WarrantyService);
 container.bind(TYPES.WarrantyController).to(WarrantyController);
+container.bind<IStatisticService>(TYPES.StatisticService).to(StatisticService);
+container.bind(TYPES.StatisticController).to(StatisticController);
 export default container;

@@ -64,4 +64,6 @@ export const TYPES = {
   ImportOrderController: Symbol.for("ImportOrderController"),
   ProductSerialService: Symbol.for("ProductSerialService"),
   ProductSerialController: Symbol.for("ProductSerialController"),
+  StatisticService: Symbol.for("StatisticService"),
+  StatisticController: Symbol.for("StatisticController"),
 };

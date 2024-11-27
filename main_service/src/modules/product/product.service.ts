@@ -30,7 +30,7 @@ export class ProductService implements IProductService {
   ) {}
 
   async searchProducts(name: string, page: number, limit: number) {
-    logger.info("Searching products with name: " + name);
+    console.log("Searching products with name: " + name);
     return await this.skuRepository.search(name, page, limit);
   }
 

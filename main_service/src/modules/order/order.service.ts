@@ -11,9 +11,11 @@ import {
   IOrderItemRepository,
   IOrderRepository,
   IProductSerialRepository,
+  ISkuRepository,
   IUserRepository,
 } from "src/shared/interfaces/repositories";
 import {
+  cartItems,
   CreateOrder,
   CreateOrderItem,
   Order,
@@ -26,6 +28,7 @@ import { logger } from "src/shared/middlewares";
 import { DB } from "src/shared/database/connect";
 import { inject } from "inversify";
 import { TYPES } from "src/shared/constants";
+import { eq } from "drizzle-orm";
 
 export class OrderService implements IOrderService {
   private readonly stripe: Stripe;
@@ -37,7 +40,9 @@ export class OrderService implements IOrderService {
     @inject(TYPES.ProductSerialRepository)
     private productSerialRepository: IProductSerialRepository,
     @inject(TYPES.InventoryRepository)
-    private inventoryRepository: IInventoryRepository
+    private inventoryRepository: IInventoryRepository,
+    @inject(TYPES.SkuRepository)
+    private skuRepository: ISkuRepository
   ) {
     this.stripe = new Stripe(
       "sk_test_51NrvBlBRW0tzi9hCKyOzdVSm5bMrlprFwyrXbzDI2OhI2gZFfJPpw0kr8981x0p3EhYo7ysXMGriS8TAoKTrqnDk00kqf5mes6",
@@ -73,12 +78,39 @@ export class OrderService implements IOrderService {
     };
   }
 
-  async listOrders(userId?: number): Promise<Order[]> {
+  async listOrders(userId?: number): Promise<OrderResponse[]> {
+    let orders: Order[];
+  
+    // Lấy danh sách đơn hàng dựa trên userId
     if (userId) {
-      return this.orderRepo.getOrdersByUserId(userId);
+      orders = await this.orderRepo.getOrdersByUserId(userId);
+    } else {
+      orders = await this.orderRepo.getAllOrders();
     }
-    return this.orderRepo.getAllOrders();
+  
+    // Xử lý từng đơn hàng và tích hợp thông tin SKU cho từng item
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const items = await Promise.all(
+          (await this.orderItemRepo.getOrderItemsByOrderId(order.id)).map(async (item) => {
+            const sku = await this.skuRepository.findById(item.skuId); // Lấy thông tin SKU
+            return {
+              ...item,
+              sku, // Thêm thông tin SKU vào item
+            };
+          })
+        );
+  
+        return {
+          ...order,
+          items, // Thêm danh sách items với thông tin SKU vào order
+        };
+      })
+    );
+  
+    return ordersWithItems;
   }
+  
 
   async handleStripeWebhook(event: StripeWebhookEvent): Promise<void> {
     const { type, data } = event;
@@ -177,9 +209,9 @@ export class OrderService implements IOrderService {
             -1
           );
         }
-        // if (checkoutDto.cartId) {
-        //   await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
-        // }
+        if (checkoutDto.cartId) {
+          await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
+        }
 
         return "Cash payment order created successfully";
       }
@@ -358,6 +390,8 @@ export class OrderService implements IOrderService {
       await this.orderRepo.update(newOrder.id, {
         orderStatus: OrderStatus.PROCESSING,
       });
+
+      await DB.delete(cartItems).where(eq(cartItems.cartId, +session.metadata.cartId)).execute();
 
       // Send order confirmation
       // await this.sendOrderConfirmation(order);

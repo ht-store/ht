@@ -24,25 +24,18 @@ export class ProductController {
       if (errors.length > 0) {
         throw new Error("Validation failed");
       }
-      const { filters, pagination } = {
-        filters: {
-          ...dto.filters,
-          brandId: parseInt(req.query.brandId as string) || undefined,
-          categoryId: parseInt(req.query.categoryId as string) || undefined,
-          minPrice: parseInt(req.query.minPrice as string) || undefined,
-          maxPrice: parseInt(req.query.maxPrice as string) || undefined,
-        },
-        pagination: {
-          page: parseInt(req.query.page as string) || 1,
-          pageSize: parseInt(req.query.pageSize as string) || 20,
-        },
-      };
+      console.log(req.query)
+      const name = req.query.name as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 18;
+
+
 
       // Call the service layer method
       const products = await this.productService.searchProducts(
-        filters.name || "",
-        pagination.page,
-        pagination.pageSize
+        name || "",
+        page || 1,
+        pageSize
       );
       const response = {
         success: true,

@@ -70,9 +70,9 @@ export class OrderController {
 
   async listOrders(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.query.userId
+      const userId = req.userId
         ? parseInt(req.query.userId as string)
-        : undefined;
+        : 1
       const orders = await this.orderService.listOrders(userId);
       res.status(200).json({
         success: true,

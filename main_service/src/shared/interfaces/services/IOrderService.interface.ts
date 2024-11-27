@@ -3,8 +3,10 @@ import {
   CreateOrder,
   CreateOrderItem,
   Order,
+  OrderItem,
 } from "src/shared/database/schemas";
 import { OrderResponse } from "src/shared/types";
+
 
 export interface IOrderService {
   /**
@@ -27,7 +29,7 @@ export interface IOrderService {
    * @param userId Optional user ID to filter orders
    * @returns Promise resolving to an array of orders
    */
-  listOrders(userId?: number): Promise<Order[]>;
+  listOrders(userId?: number): Promise<OrderResponse[]>;
 
   /**
    * Handles Stripe webhook events

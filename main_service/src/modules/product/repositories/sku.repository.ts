@@ -31,8 +31,7 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
   }
 
   async findByProductId(productId: number) {
-    logger.info(`Searching for skus with productId ${productId}`);
-    const skus1 = await this.db
+    const data = await this.db
       .select()
       .from(skus)
       .innerJoin(
@@ -46,8 +45,9 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
       .innerJoin(skuAttributes, eq(skuAttributes.skuId, skus.id))
       .innerJoin(attributes, eq(attributes.id, skuAttributes.attributeId))
       .where(eq(skus.productId, productId));
-
-    return skus1;
+      return Array.from(
+        new Map(data.map((item) => [item.skus.id, item])).values()
+      );
   }
 
   async findBySkuId(skuId: number) {

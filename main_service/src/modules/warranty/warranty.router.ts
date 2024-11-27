@@ -87,4 +87,4 @@ warrantyRouter.get(
   warrantyController.getAllActiveWarranties.bind(warrantyController)
 );
 
-export { warrantyRouter };
+export default warrantyRouter;
