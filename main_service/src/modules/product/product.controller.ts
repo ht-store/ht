@@ -76,7 +76,6 @@ export class ProductController {
           pageSize: parseInt(req.query.pageSize as string) || 20,
         },
       };
-
       // Call the service layer method
       const products = await this.productService.getProducts(
         filters,

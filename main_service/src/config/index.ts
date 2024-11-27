@@ -45,7 +45,7 @@ const configuration: Config = {
   PORT: process.env.PORT!,
   DB_URL:
     process.env.DB_URL ||
-    "postgresql://maiphuonglam:mpl08092002@localhost:5432/store",
+    "postgresql://postgres:hoangmay24022002@localhost:5432/ht",
   JWT_ACCESS_SECRET_KEY: process.env.ACCESS_SECRET_KEY,
   JWT_REFRESH_SECRET_KEY: process.env.ACCESS_SECRET_KEY,
   REDIS_HOST: process.env.REDIS_HOST!,

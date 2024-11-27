@@ -8,7 +8,7 @@ export default defineConfig({
   dbCredentials: {
     url:
       process.env.DB_URL ||
-      "postgresql://maiphuonglam:mpl08092002@localhost:5432/store",
+      "postgresql://postgres:hoangmay24022002@localhost:5432/store",
   },
   verbose: true,
   strict: true,

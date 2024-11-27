@@ -61,6 +61,7 @@ export class BrandController {
   async updateBrand(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.id);
     const updateBrandDto = <UpdateBrandDto>req.body;
+    console.log(updateBrandDto);
     try {
       const updatedBrand = await this.brandService.updateBrand(
         id,
