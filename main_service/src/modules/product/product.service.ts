@@ -205,6 +205,19 @@ export class ProductService implements IProductService {
     }
   }
 
+  async deleteProductSku(skuId: number): Promise<Sku> {
+    try {
+      
+      const skuAttributes = await this.skuAttributeRepository.findBySkuId(skuId);
+      await Promise.all(
+        skuAttributes.map(skuAttr => this.skuAttributeRepository.delete(skuAttr.id))
+      );
+      return await this.skuRepository.delete(skuId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async handleUploadImage(image: Express.Multer.File, uploadPrefix: string): Promise<UploadedImageType> {
     const imageData = image.buffer;
     const extension = image.originalname.split(".").pop(); // Lấy phần mở rộng file
