@@ -11,3 +11,4 @@ export * from "./import-order.type";
 export * from "./order.type";
 export * from "./broker.type";
 export * from './statistic.type'
+export * from './role.type'

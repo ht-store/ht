@@ -7,6 +7,7 @@ import {
   IImportOrderService,
   IOrderService,
   IProductService,
+  IRoleService,
   IStatisticService,
   ISupplierService,
   IUserService,
@@ -37,6 +38,7 @@ import {
   IWarrantyClaimRepository,
   IWarrantyClaimCostRepository,
   IProductSellWarrantyRepository,
+  IRoleRepository,
 } from "src/shared/interfaces/repositories";
 import { Container } from "inversify";
 import { UserController, UserRepository, UserService } from "src/modules/user";
@@ -99,6 +101,7 @@ import {
   WarrantyService,
 } from "src/modules/warranty";
 import { StatisticController, StatisticService } from "src/modules/statistic";
+import { RoleController, RoleRepository, RoleService } from "src/modules/role";
 
 const container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
@@ -114,11 +117,11 @@ container
   .to(CategoryRepository);
 container.bind<ICategoryService>(TYPES.CategoryService).to(CategoryService);
 container.bind(TYPES.CategoryController).to(CategoryController);
-// container
-//   .bind<IRoleRepository>(INTERFACE_NAME.RoleRepository)
-//   .to(RoleRepository);
-// container.bind<IRoleService>(INTERFACE_NAME.RoleService).to(RoleService);
-// container.bind(INTERFACE_NAME.RoleController).to(RoleController);
+container
+  .bind<IRoleRepository>(TYPES.RoleRepository)
+  .to(RoleRepository);
+container.bind<IRoleService>(TYPES.RoleService).to(RoleService);
+container.bind(TYPES.RoleController).to(RoleController);
 container
   .bind<IProductRepository>(TYPES.ProductRepository)
   .to(ProductRepository);
