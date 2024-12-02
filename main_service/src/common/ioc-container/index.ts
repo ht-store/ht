@@ -1,5 +1,6 @@
 import { TYPES } from "src/shared/constants";
 import {
+  IAddressService,
   IAuthService,
   IBrandService,
   ICartService,
@@ -39,6 +40,7 @@ import {
   IWarrantyClaimCostRepository,
   IProductSellWarrantyRepository,
   IRoleRepository,
+  IAddressRepository,
 } from "src/shared/interfaces/repositories";
 import { Container } from "inversify";
 import { UserController, UserRepository, UserService } from "src/modules/user";
@@ -102,8 +104,12 @@ import {
 } from "src/modules/warranty";
 import { StatisticController, StatisticService } from "src/modules/statistic";
 import { RoleController, RoleRepository, RoleService } from "src/modules/role";
+import { AddressController, AddressRepository, AddressService } from "src/modules/address";
 
 const container = new Container();
+container.bind<IAddressRepository>(TYPES.AddressRepository).to(AddressRepository);
+container.bind<IAddressService>(TYPES.AddressService).to(AddressService);
+container.bind(TYPES.AddressController).to(AddressController);
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IUserService>(TYPES.UserService).to(UserService);
 container.bind(TYPES.UserController).to(UserController);
