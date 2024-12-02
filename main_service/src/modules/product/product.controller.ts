@@ -9,6 +9,7 @@ import { putObjectUrl } from "src/shared/helper";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { GetProductsDto } from "./dtos/get-products.dto";
+import { UploadedImageType } from "src/shared/types";
 
 @injectable()
 export class ProductController {
@@ -212,20 +213,42 @@ export class ProductController {
     }
   }
 
+
+
   async uploadImage(req: Request, res: Response, next: NextFunction) {
-    if (!req.file) {
-      return res.status(400).send("No file uploaded.");
-    }
-
-    const file = req.file;
-    const contentType = file.mimetype;
-
     try {
-      const putUrl = await putObjectUrl(file, contentType);
-      res.status(201).json(putUrl);
+      const images = req.files as Express.Multer.File[] | undefined;
+      if (!images || images.length === 0) {
+        res.status(400).json({ message: "No images uploaded" });
+        return;
+      }
+      const uploadedResults: UploadedImageType[] = [];
+      const uploadPrefix = `skus/`;
+      for (const image of images) {
+        const { name, path } = await this.productService.handleUploadImage(image, uploadPrefix);
+        uploadedResults.push({ name, path });
+      }
+  
+      if (uploadedResults.length === 1) {
+        res.status(200).json({
+          success: "OK",
+          data: { image_url: uploadedResults[0].path },
+        });
+      } else {
+        const folderUrl = `${process.env.CLOUDFLARE_IMG_PATH}${uploadPrefix}`;
+        res.status(200).json({
+          success: "OK",
+          data: {
+            folder_url: folderUrl,
+            valid_images: uploadedResults,
+          },
+        });
+      }
     } catch (error) {
       logger.error("Image upload failed:", error);
       next(error);
     }
   }
+
+  
 }

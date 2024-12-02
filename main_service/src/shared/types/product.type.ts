@@ -1,5 +1,10 @@
 import { CreateProduct, Product, Sku, SkuAttribute } from "../database/schemas";
 
+export type UploadedImageType = {
+  name: string;
+  path: string;
+}
+
 export type ProductWithRelation = Product & {
   skus: Sku[];
   skuAttributes: SkuAttribute[];

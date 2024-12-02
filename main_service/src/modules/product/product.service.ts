@@ -1,3 +1,5 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import md5 from 'md5'
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
 import { CreateProduct, Product, Sku } from "src/shared/database/schemas";
@@ -14,10 +16,12 @@ import {
   AttributesType,
   CreateProductType,
   ProductWithRelation,
+  UploadedImageType,
 } from "src/shared/types";
 
 @injectable()
 export class ProductService implements IProductService {
+  private s3Client: S3Client;
   constructor(
     @inject(TYPES.ProductRepository)
     private productRepository: IProductRepository,
@@ -27,7 +31,20 @@ export class ProductService implements IProductService {
     private skuAttributeRepository: ISkuAttributeRepository,
     @inject(TYPES.PriceRepository)
     private priceRepository: IPriceRepository
-  ) {}
+  ) {
+    this.s3Client = this.createS3Client();
+  }
+  private createS3Client(): S3Client {
+    return new S3Client({
+      region: "auto",
+      endpoint: process.env.CLOUDFLARE_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY || "",
+      },
+      forcePathStyle: true,
+    });
+  }
 
   async searchProducts(name: string, page: number, limit: number) {
     console.log("Searching products with name: " + name);
@@ -206,4 +223,36 @@ export class ProductService implements IProductService {
     }, {});
     return groupedByAttributeId;
   }
+
+  async handleUploadImage(image: Express.Multer.File, uploadPrefix: string): Promise<UploadedImageType> {
+    const imageData = image.buffer;
+    const extension = image.originalname.split(".").pop(); // Lấy phần mở rộng file
+    const imageNameWithoutExt = image.originalname.split(".").slice(0, -1).join("."); // Tên file không có đuôi mở rộng
+
+    // Tạo hash MD5 từ tên image và thời gian hiện tại để tránh trùng lặp
+    const hash = md5(imageNameWithoutExt + Date.now());
+    const fullImageName = `${uploadPrefix}${hash}.${extension}`; // Tạo tên file
+    await this.putObjCommand(fullImageName, imageData);
+
+    const path = `${process.env.CLOUDFLARE_IMG_PATH}${fullImageName}`;
+
+    return { name: fullImageName, path };
+  }
+
+  private async putObjCommand(fileName: string, data: any) {
+    try {
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.CLOUDFLARE_PRODUCT_BUCKET_NAME,
+          Key: fileName,
+          Body: data,
+          ContentType: "image/png", // Đảm bảo phần này là đúng loại nội dung
+        })
+      );
+    } catch (error) {
+      console.error("Error uploading object to R2 bucket:", error);
+      throw error;
+    }
+  }
+
 }
