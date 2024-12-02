@@ -189,6 +189,25 @@ export class ProductController {
     }
   }
 
+  async deleteProductSku(req: Request, res: Response, next: NextFunction) {
+    const skuId = parseInt(req.params.skuId);
+    try {
+      const deletedProduct = await this.productService.deleteProductSku(skuId);
+      const response = {
+        success: true,
+        message: "Delete product skuId is successful",
+        data: deletedProduct,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({ success: false, error: error.message });
+      }
+      logger.error(`Delete Product with id ${skuId} failed`, error);
+      next(error);
+    }
+  }
+
   async getProductsRelation(req: Request, res: Response, next: NextFunction) {
     const productId = parseInt(req.params.productId);
     try {
