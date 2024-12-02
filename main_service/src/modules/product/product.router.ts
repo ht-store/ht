@@ -29,6 +29,7 @@ productRouter.get(
 productRouter.post("/storages", auth, controller.getStorages.bind(controller));
 productRouter.post("/", auth, controller.createProduct.bind(controller));
 productRouter.patch("/:id", auth, controller.updateProduct.bind(controller));
+productRouter.put("/:productId/skus/:skuId", auth, controller.updateProductSku.bind(controller));
 productRouter.delete("/:id", auth, controller.deleteProduct.bind(controller));
 productRouter.post(
   "/upload-image",

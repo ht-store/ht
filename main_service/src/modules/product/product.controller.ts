@@ -145,6 +145,31 @@ export class ProductController {
     }
   }
 
+  async updateProductSku(req: Request, res: Response, next: NextFunction) {
+    const productId = parseInt(req.params.productId);
+    const skuId = parseInt(req.params.skuId);
+    const updateProductDto = req.body;
+    try {
+      const updatedProduct = await this.productService.updateProductSku(
+        productId,
+        skuId,
+        updateProductDto
+      );
+      const response = {
+        success: true,
+        message: "Update product is successful",
+        data: updatedProduct,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({ success: false, error: error.message });
+      }
+      logger.error(`Update Product with id ${skuId} failed`, error);
+      next(error);
+    }
+  }
+
   async deleteProduct(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.id);
     try {
