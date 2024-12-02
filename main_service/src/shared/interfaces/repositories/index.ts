@@ -21,3 +21,5 @@ export * from "./IWarrantyRepository.interface";
 export * from "./IProductSellWarrantyRepository.interface";
 export * from "./IWarranyClaimRepository.interface";
 export * from "./IWarrantyClaimCostRepository.interface";
+export * from './IRoleRepository.interface'
+export * from './IAddressRpository.interface'

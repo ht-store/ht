@@ -11,3 +11,5 @@ export * from "./IOrderService.interface";
 export * from "./IWarrantyService.interface";
 export * from './IStatisticService.interface';
 export * from './IStatisticService.interface'
+export * from './IRoleService.interface';
+export * from './IAddressService.interface';

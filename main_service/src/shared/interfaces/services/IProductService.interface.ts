@@ -3,6 +3,7 @@ import {
   AttributesType,
   CreateProductType,
   ProductWithRelation,
+  UploadedImageType,
 } from "src/shared/types/product.type";
 
 export interface IProductService {
@@ -29,4 +30,7 @@ export interface IProductService {
     productId: number
   ): Promise<Record<number, AttributesType[]>>;
   getStorages(value: string, productId: number): Promise<any>;
+  handleUploadImage(image: Express.Multer.File, uploadPrefix: string): Promise<UploadedImageType>
+  updateProductSku(productid: number, skuId: number, productData: CreateProductType): Promise<void>
+  deleteProductSku(skuId: number): Promise<Sku>
 }

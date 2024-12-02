@@ -12,6 +12,8 @@ import importOrderRouter from "./modules/import-order/import-order.router";
 import orderRouter from "./modules/order/order.router";
 import warrantyRouter from "./modules/warranty/warranty.router";
 import statisticRouter from "./modules/statistic/statistic.router";
+import roleRouter from "./modules/role/role.router";
+import addressRouter from "./modules/address/address.router";
 
 export const expressApp = (app: Express) => {
   app.use("/users", userRouter);
@@ -26,6 +28,8 @@ export const expressApp = (app: Express) => {
   app.use("/orders", orderRouter);
   app.use("/warranties", warrantyRouter);
   app.use("/statistic", statisticRouter);
+  app.use("/roles", roleRouter);
+  app.use("/addresses", addressRouter);
 
   app.use(errorHandler);
 };

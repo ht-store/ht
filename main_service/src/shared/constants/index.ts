@@ -9,6 +9,9 @@ export const STATUS_CODES = {
 };
 
 export const TYPES = {
+  AddressRepository: Symbol.for("AddressRepository"),
+  AddressService: Symbol.for("AddressService"),
+  AddressController: Symbol.for("AddressController"),
   UserRepository: Symbol.for("UserRepository"),
   UserService: Symbol.for("UserService"),
   UserController: Symbol.for("UserController"),

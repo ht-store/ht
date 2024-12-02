@@ -1,5 +1,6 @@
 import { TYPES } from "src/shared/constants";
 import {
+  IAddressService,
   IAuthService,
   IBrandService,
   ICartService,
@@ -7,6 +8,7 @@ import {
   IImportOrderService,
   IOrderService,
   IProductService,
+  IRoleService,
   IStatisticService,
   ISupplierService,
   IUserService,
@@ -37,6 +39,8 @@ import {
   IWarrantyClaimRepository,
   IWarrantyClaimCostRepository,
   IProductSellWarrantyRepository,
+  IRoleRepository,
+  IAddressRepository,
 } from "src/shared/interfaces/repositories";
 import { Container } from "inversify";
 import { UserController, UserRepository, UserService } from "src/modules/user";
@@ -99,8 +103,13 @@ import {
   WarrantyService,
 } from "src/modules/warranty";
 import { StatisticController, StatisticService } from "src/modules/statistic";
+import { RoleController, RoleRepository, RoleService } from "src/modules/role";
+import { AddressController, AddressRepository, AddressService } from "src/modules/address";
 
 const container = new Container();
+container.bind<IAddressRepository>(TYPES.AddressRepository).to(AddressRepository);
+container.bind<IAddressService>(TYPES.AddressService).to(AddressService);
+container.bind(TYPES.AddressController).to(AddressController);
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IUserService>(TYPES.UserService).to(UserService);
 container.bind(TYPES.UserController).to(UserController);
@@ -114,11 +123,11 @@ container
   .to(CategoryRepository);
 container.bind<ICategoryService>(TYPES.CategoryService).to(CategoryService);
 container.bind(TYPES.CategoryController).to(CategoryController);
-// container
-//   .bind<IRoleRepository>(INTERFACE_NAME.RoleRepository)
-//   .to(RoleRepository);
-// container.bind<IRoleService>(INTERFACE_NAME.RoleService).to(RoleService);
-// container.bind(INTERFACE_NAME.RoleController).to(RoleController);
+container
+  .bind<IRoleRepository>(TYPES.RoleRepository)
+  .to(RoleRepository);
+container.bind<IRoleService>(TYPES.RoleService).to(RoleService);
+container.bind(TYPES.RoleController).to(RoleController);
 container
   .bind<IProductRepository>(TYPES.ProductRepository)
   .to(ProductRepository);
