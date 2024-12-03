@@ -21,7 +21,7 @@ import {
   Order,
   OrderItem,
 } from "src/shared/database/schemas";
-import { IOrderService } from "src/shared/interfaces/services";
+import { IOrderService, IWarrantyService } from "src/shared/interfaces/services";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import config from "src/config";
 import { logger } from "src/shared/middlewares";
@@ -42,7 +42,9 @@ export class OrderService implements IOrderService {
     @inject(TYPES.InventoryRepository)
     private inventoryRepository: IInventoryRepository,
     @inject(TYPES.SkuRepository)
-    private skuRepository: ISkuRepository
+    private skuRepository: ISkuRepository,
+    @inject(TYPES.WarrantyService) private readonly warrantyService: IWarrantyService
+
   ) {
     this.stripe = new Stripe(
       "sk_test_51NrvBlBRW0tzi9hCKyOzdVSm5bMrlprFwyrXbzDI2OhI2gZFfJPpw0kr8981x0p3EhYo7ysXMGriS8TAoKTrqnDk00kqf5mes6",
@@ -381,6 +383,10 @@ export class OrderService implements IOrderService {
             1,
             -1
           );
+          const warranty = await this.warrantyService.getWarrantyBySkuId(productItem.skuId)
+          if (warranty) {
+            await this.warrantyService.activateWarranty(serial.id, warranty.id, new Date())
+          }
         })
       );
 

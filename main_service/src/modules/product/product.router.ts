@@ -40,7 +40,7 @@ productRouter.patch("/:id", auth, controller.updateProduct.bind(controller));
 productRouter.put("/:productId/skus/:skuId", auth, controller.updateProductSku.bind(controller));
 
 // DELETE routes
-productRouter.delete("/sku/:id", auth, controller.deleteProduct.bind(controller));
+productRouter.delete("/sku/:skuId", auth, controller.deleteProductSku.bind(controller));
 productRouter.delete("/:id", auth, controller.deleteProduct.bind(controller));
 
 export default productRouter;
