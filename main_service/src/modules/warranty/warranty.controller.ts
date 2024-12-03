@@ -99,9 +99,9 @@ export class WarrantyController {
 
   // Endpoint to create a warranty claim
   async createClaim(req: Request, res: Response): Promise<void> {
-    const { productWarrantyId, issueDescription } = req.body;
+    const { serial, issueDescription } = req.body;
 
-    if (!productWarrantyId || !issueDescription) {
+    if (!serial || !issueDescription) {
       throw new BadRequestError(
         "Product Warranty ID and Issue Description are required."
       );
@@ -109,7 +109,7 @@ export class WarrantyController {
 
     try {
       const claimId = await this.warrantyService.createClaim(
-        productWarrantyId,
+        serial,
         issueDescription
       );
       res
