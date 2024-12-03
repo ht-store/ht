@@ -26,7 +26,7 @@ export interface IWarrantyService {
   ): Promise<ProductSellWarranty | null>;
   updateWarrantyStatus(serialId: number, status: string): Promise<void>;
   createClaim(
-    productWarrantyId: number,
+    serial: string,
     issueDescription: string
   ): Promise<number>;
   getClaimsByWarrantyId(productWarrantyId: number): Promise<WarrantyClaim[]>;
