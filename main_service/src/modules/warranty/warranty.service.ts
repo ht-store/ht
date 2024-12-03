@@ -9,6 +9,7 @@ import {
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import {
   IProductSellWarrantyRepository,
+  IProductSerialRepository,
   IWarrantyClaimCostRepository,
   IWarrantyClaimRepository,
   IWarrantyRepository,
@@ -25,7 +26,9 @@ export class WarrantyService implements IWarrantyService {
     @inject(TYPES.WarrantyClaimRepository)
     private warrantyClaimRepository: IWarrantyClaimRepository,
     @inject(TYPES.WarrantyClaimCostRepository)
-    private warrantyClaimCostRepository: IWarrantyClaimCostRepository
+    private warrantyClaimCostRepository: IWarrantyClaimCostRepository,
+    @inject(TYPES.ProductSerialRepository)
+    private productSerialRepository: IProductSerialRepository
   ) {}
   async getAllClaims(): Promise<WarrantyClaim[]> {
     return await this.warrantyClaimRepository.findAll();
@@ -127,11 +130,24 @@ export class WarrantyService implements IWarrantyService {
 
   // Warranty Claim Methods
   async createClaim(
-    productWarrantyId: number,
+    serial: string,
     issueDescription: string
   ): Promise<number> {
+    const productSeri = await this.productSerialRepository.findBySerial(serial)
+    if (!productSeri) {
+      throw new NotFoundError("Seri not found")
+    }
+    const productWarranty = await this.productSellWarrantyRepository.findBySerial(
+      productSeri.id
+    );
+    if (!productWarranty) {
+      throw new NotFoundError("product not found");
+    }
+    if (productWarranty.warrantyStatus !== "active") {
+      throw new BadRequestError("product warranty is not active");
+    }
     const claim = await this.warrantyClaimRepository.add({
-      productWarrantyId,
+      productWarrantyId: productWarranty.id,
       issueDescription,
       claimDate: new Date(),
       claimStatus: "pending",

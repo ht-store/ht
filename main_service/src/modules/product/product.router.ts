@@ -44,11 +44,7 @@ productRouter.put(
 );
 
 // DELETE routes
-productRouter.delete(
-  "/sku/:id",
-  auth,
-  controller.deleteProductSku.bind(controller)
-);
+productRouter.delete("/sku/:skuId", auth, controller.deleteProductSku.bind(controller));
 productRouter.delete("/:id", auth, controller.deleteProduct.bind(controller));
 
 export default productRouter;

@@ -10,7 +10,7 @@ import {
   ISkuAttributeRepository,
   ISkuRepository,
 } from "src/shared/interfaces/repositories";
-import { IProductService } from "src/shared/interfaces/services";
+import { IProductService, IWarrantyService } from "src/shared/interfaces/services";
 import { logger } from "src/shared/middlewares";
 import {
   AttributesType,
@@ -31,7 +31,7 @@ export class ProductService implements IProductService {
     @inject(TYPES.SkuAttributeRepository)
     private skuAttributeRepository: ISkuAttributeRepository,
     @inject(TYPES.PriceRepository)
-    private priceRepository: IPriceRepository
+    private priceRepository: IPriceRepository,
   ) {
     this.s3Client = this.createS3Client();
   }

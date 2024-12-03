@@ -68,6 +68,10 @@ class ProductDetailDto {
 
   @IsString()
   price: string;
+
+  @IsOptional()
+  @IsString()
+  image: string;
 }
 
 export class CreateProductDto {
