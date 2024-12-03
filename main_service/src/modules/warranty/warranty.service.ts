@@ -127,11 +127,20 @@ export class WarrantyService implements IWarrantyService {
 
   // Warranty Claim Methods
   async createClaim(
-    productWarrantyId: number,
+    serial: number,
     issueDescription: string
   ): Promise<number> {
+    const productWarranty = await this.productSellWarrantyRepository.findBySerial(
+      serial
+    );
+    if (!productWarranty) {
+      throw new NotFoundError("product not found");
+    }
+    if (productWarranty.warrantyStatus !== "active") {
+      throw new BadRequestError("product warranty is not active");
+    }
     const claim = await this.warrantyClaimRepository.add({
-      productWarrantyId,
+      productWarrantyId: productWarranty.id,
       issueDescription,
       claimDate: new Date(),
       claimStatus: "pending",
