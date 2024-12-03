@@ -29,7 +29,7 @@ productRouter.post("/storages", auth, controller.getStorages.bind(controller));
 productRouter.post("/", auth, controller.createProduct.bind(controller));
 productRouter.post(
   "/upload-image",
-  upload.array('images', 10),
+  upload.array("images", 10),
   controller.uploadImage.bind(controller)
 );
 
@@ -37,10 +37,18 @@ productRouter.post(
 productRouter.patch("/:id", auth, controller.updateProduct.bind(controller));
 
 // PUT routes
-productRouter.put("/:productId/skus/:skuId", auth, controller.updateProductSku.bind(controller));
+productRouter.put(
+  "/:productId/skus/:skuId",
+  auth,
+  controller.updateProductSku.bind(controller)
+);
 
 // DELETE routes
-productRouter.delete("/sku/:id", auth, controller.deleteProduct.bind(controller));
+productRouter.delete(
+  "/sku/:id",
+  auth,
+  controller.deleteProductSku.bind(controller)
+);
 productRouter.delete("/:id", auth, controller.deleteProduct.bind(controller));
 
 export default productRouter;

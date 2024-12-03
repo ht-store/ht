@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=dev ts-node-dev --poll -r tsconfig-paths/register --respawn --transpile-only src/index.ts",
+    "dev": "cross-env NODE_ENV=dev ts-node-dev --poll -r tsconfig-paths/register --respawn --transpile-only src/index.ts",
     "start": "NODE_ENV=prod node -r tsconfig-paths/register dist/index.js",
     "build": "rimraf ./dist && tsc && tsc-alias",
     "format": "prettier --write **/*.ts",
@@ -71,6 +71,7 @@
     "@types/pg": "^8.11.6",
     "@types/redis": "^4.0.11",
     "@types/uuid": "^10.0.0",
+    "cross-env": "^7.0.3",
     "drizzle-kit": "^0.22.8",
     "prettier": "^3.3.2",
     "tsc-alias": "^1.8.10",

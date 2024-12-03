@@ -25,12 +25,10 @@ export class ProductController {
       if (errors.length > 0) {
         throw new Error("Validation failed");
       }
-      console.log(req.query)
+      console.log(req.query);
       const name = req.query.name as string;
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 18;
-
-
 
       // Call the service layer method
       const products = await this.productService.searchProducts(
@@ -190,7 +188,7 @@ export class ProductController {
   }
 
   async deleteProductSku(req: Request, res: Response, next: NextFunction) {
-    const skuId = parseInt(req.params.skuId);
+    const skuId = parseInt(req.params.id);
     try {
       const deletedProduct = await this.productService.deleteProductSku(skuId);
       const response = {
@@ -257,8 +255,6 @@ export class ProductController {
     }
   }
 
-
-
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     try {
       const images = req.files as Express.Multer.File[] | undefined;
@@ -269,10 +265,13 @@ export class ProductController {
       const uploadedResults: UploadedImageType[] = [];
       const uploadPrefix = `skus/`;
       for (const image of images) {
-        const { name, path } = await this.productService.handleUploadImage(image, uploadPrefix);
+        const { name, path } = await this.productService.handleUploadImage(
+          image,
+          uploadPrefix
+        );
         uploadedResults.push({ name, path });
       }
-  
+
       if (uploadedResults.length === 1) {
         res.status(200).json({
           success: "OK",
@@ -293,6 +292,4 @@ export class ProductController {
       next(error);
     }
   }
-
-  
 }

@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import md5 from 'md5'
+import md5 from "md5";
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
 import { CreateProduct, Product, Sku } from "src/shared/database/schemas";
@@ -35,7 +35,7 @@ export class ProductService implements IProductService {
   ) {
     this.s3Client = this.createS3Client();
   }
-  
+
   async searchProducts(name: string, page: number, limit: number) {
     console.log("Searching products with name: " + name);
     return await this.skuRepository.search(name, page, limit);
@@ -85,7 +85,7 @@ export class ProductService implements IProductService {
         throw new Error("Failed to create or retrieve product ID");
       }
       // Process SKUs
-      await this.createSku(productId, details)
+      await this.createSku(productId, details);
       // Fetch the full product with relations (SPU + SKUs + Attributes)
       const fullProduct =
         await this.productRepository.findByIdWithRelations(productId);
@@ -187,10 +187,13 @@ export class ProductService implements IProductService {
     const { product, details } = productData;
     try {
       const existingProduct = await this.productRepository.findById(productId);
-  
+
       if (existingProduct) {
-        const needsNewProduct = this.shouldCreateNewProduct(existingProduct, product as Product);
-  
+        const needsNewProduct = this.shouldCreateNewProduct(
+          existingProduct,
+          product as Product
+        );
+
         if (needsNewProduct) {
           await this.handleProductReplacement(product, details, skuId);
         } else {
@@ -206,11 +209,14 @@ export class ProductService implements IProductService {
   }
 
   async deleteProductSku(skuId: number): Promise<Sku> {
+    console.log(skuId);
     try {
-      
-      const skuAttributes = await this.skuAttributeRepository.findBySkuId(skuId);
+      const skuAttributes =
+        await this.skuAttributeRepository.findBySkuId(skuId);
       await Promise.all(
-        skuAttributes.map(skuAttr => this.skuAttributeRepository.delete(skuAttr.id))
+        skuAttributes.map((skuAttr) =>
+          this.skuAttributeRepository.delete(skuAttr.id)
+        )
       );
       return await this.skuRepository.delete(skuId);
     } catch (error) {
@@ -218,10 +224,16 @@ export class ProductService implements IProductService {
     }
   }
 
-  async handleUploadImage(image: Express.Multer.File, uploadPrefix: string): Promise<UploadedImageType> {
+  async handleUploadImage(
+    image: Express.Multer.File,
+    uploadPrefix: string
+  ): Promise<UploadedImageType> {
     const imageData = image.buffer;
     const extension = image.originalname.split(".").pop(); // Lấy phần mở rộng file
-    const imageNameWithoutExt = image.originalname.split(".").slice(0, -1).join("."); // Tên file không có đuôi mở rộng
+    const imageNameWithoutExt = image.originalname
+      .split(".")
+      .slice(0, -1)
+      .join("."); // Tên file không có đuôi mở rộng
 
     // Tạo hash MD5 từ tên image và thời gian hiện tại để tránh trùng lặp
     const hash = md5(imageNameWithoutExt + Date.now());
@@ -237,7 +249,7 @@ export class ProductService implements IProductService {
     return new S3Client({
       region: "auto",
       endpoint: process.env.CLOUDFLARE_ENDPOINT,
-      credentials: {  
+      credentials: {
         accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID || "",
         secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY || "",
       },
@@ -299,37 +311,43 @@ export class ProductService implements IProductService {
         })
       );
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   private shouldCreateNewProduct(
-    existingProduct: Product, 
+    existingProduct: Product,
     newProduct: Product
   ): boolean {
     const fieldsToCheck = [
-      'battery', 'brandId', 'camera', 'categoryId', 
-      'image', 'originalPrice', 'os', 
-      'processor', 'screenSize'
+      "battery",
+      "brandId",
+      "camera",
+      "categoryId",
+      "image",
+      "originalPrice",
+      "os",
+      "processor",
+      "screenSize",
     ] as const;
-  
-    return fieldsToCheck.some(field => 
-      existingProduct[field] !== newProduct[field]
+
+    return fieldsToCheck.some(
+      (field) => existingProduct[field] !== newProduct[field]
     );
   }
-  
+
   private async handleProductReplacement(
-    product: Partial<Product>, 
-    details: ProductDetail[], 
+    product: Partial<Product>,
+    details: ProductDetail[],
     skuId: number
   ): Promise<void> {
     const newProduct = await this.productRepository.add(product as Product);
     await this.createSku(newProduct.id, details);
     await this.skuRepository.delete(skuId);
   }
-  
+
   private async createNewProductWithSku(
-    product: Partial<Product>, 
+    product: Partial<Product>,
     details: ProductDetail[]
   ): Promise<void> {
     const newProduct = await this.productRepository.add(product as Product);

@@ -49,7 +49,7 @@ export class ImportOrderController {
   // Lấy chi tiết các mặt hàng trong đơn nhập
   async getImportOrderItems(req: Request, res: Response, next: NextFunction) {
     try {
-      const importId = +req.params.importId;
+      const importId = +req.params.id;
       const items = await this.importOrderService.getImportOrderItems(importId);
 
       return res.status(STATUS_CODES.OK).json({
