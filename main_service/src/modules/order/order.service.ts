@@ -80,35 +80,17 @@ export class OrderService implements IOrderService {
     };
   }
 
-  async listOrders(userId?: number): Promise<OrderResponse[]> {
-    let orders: Order[];
-  
+  async listOrderHistory(userId: number): Promise<OrderResponse[]> {
+    const orders = await this.orderRepo.getOrdersByUserId(userId);
+    const ordersWithItems = await this.handleOrderItems(orders);
+    return ordersWithItems;
+  }
+
+  async listOrders(): Promise<OrderResponse[]> {
     // Lấy danh sách đơn hàng dựa trên userId
-    if (userId) {
-      orders = await this.orderRepo.getOrdersByUserId(userId);
-    } else {
-      orders = await this.orderRepo.getAllOrders();
-    }
-  
+    const orders = await this.orderRepo.getAllOrders();
     // Xử lý từng đơn hàng và tích hợp thông tin SKU cho từng item
-    const ordersWithItems = await Promise.all(
-      orders.map(async (order) => {
-        const items = await Promise.all(
-          (await this.orderItemRepo.getOrderItemsByOrderId(order.id)).map(async (item) => {
-            const sku = await this.skuRepository.findById(item.skuId); // Lấy thông tin SKU
-            return {
-              ...item,
-              sku, // Thêm thông tin SKU vào item
-            };
-          })
-        );
-  
-        return {
-          ...order,
-          items, // Thêm danh sách items với thông tin SKU vào order
-        };
-      })
-    );
+    const ordersWithItems = await this.handleOrderItems(orders)
   
     return ordersWithItems;
   }
@@ -411,5 +393,27 @@ export class OrderService implements IOrderService {
 
       throw error;
     }
+  }
+
+  private async handleOrderItems(orders: Order[]) {
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const items = await Promise.all(
+          (await this.orderItemRepo.getOrderItemsByOrderId(order.id)).map(async (item) => {
+            const sku = await this.skuRepository.findById(item.skuId); // Lấy thông tin SKU
+            return {
+              ...item,
+              sku, // Thêm thông tin SKU vào item
+            };
+          })
+        );
+  
+        return {
+          ...order,
+          items, // Thêm danh sách items với thông tin SKU vào order
+        };
+      })
+    );
+    return ordersWithItems
   }
 }

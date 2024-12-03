@@ -70,11 +70,26 @@ export class OrderController {
 
   async listOrders(req: Request, res: Response): Promise<void> {
     try {
+      const orders = await this.orderService.listOrders();
+      res.status(200).json({  
+        success: true,
+        data: orders,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error retrieving orders",
+      });
+    }
+  }
+
+  async listHistoryOrders(req: Request, res: Response): Promise<void> {
+    try {
       const userId = req.userId
         ? parseInt(req.query.userId as string)
         : 1
-      const orders = await this.orderService.listOrders(userId);
-      res.status(200).json({
+      const orders = await this.orderService.listOrderHistory(userId);
+      res.status(200).json({  
         success: true,
         data: orders,
       });
