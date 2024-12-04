@@ -8,6 +8,7 @@ import Orders from "./pages/Orders";
 import Brands from "./pages/Brands";
 import Suppliers from "./pages/Suppliers";
 import Warranties from "./pages/Warranties";
+import Statistical from "./pages/Statistical";
 function App() {
   return (
     <Router>
@@ -22,6 +23,7 @@ function App() {
             <Route path="/brands" element={<Brands />} />
             <Route path="/suppliers" element={<Suppliers />} />
             <Route path="/warranties" element={<Warranties />} />
+            <Route path="/statistical" element={<Statistical />} />
           </Routes>
         </div>
       </div>
