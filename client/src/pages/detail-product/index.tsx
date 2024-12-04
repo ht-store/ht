@@ -49,7 +49,7 @@ interface ProductResponse {
 const DetailProduct = () => {
   const { productId, skuId } = useParams();
   const navigate = useNavigate();
-  const [cartId, setCartId] = useState<number | null>(null);
+  const [cartId, setCartId] = useState<number | null>(1);
   const [productData, setProductData] = useState<ProductResponse | null>(null);
   const [selectedColor, setSelectedColor] = useState<Attribute | null>(null);
   const [selectedStorage, setSelectedStorage] = useState<Attribute | null>(
@@ -158,7 +158,7 @@ const DetailProduct = () => {
   }
 
   const { product, attributes } = productData;
-
+  console.log(productData)
   return (
     <>
       <HomeHeader />

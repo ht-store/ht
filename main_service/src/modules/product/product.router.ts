@@ -1,15 +1,25 @@
-import express from "express";
+import express, { Router } from "express";
 import container from "src/common/ioc-container";
 import { ProductController } from "./product.controller";
 import { TYPES } from "src/shared/constants";
 import { auth } from "src/shared/middlewares";
-import multer from "multer";
+import multer, { Multer, StorageEngine } from "multer";
 
-const productRouter = express.Router();
-const controller = container.get<ProductController>(TYPES.ProductController);
-const memoryStorage = multer.memoryStorage();
-const upload = multer({
+const productRouter: Router = express.Router();
+const controller: ProductController = container.get<ProductController>(TYPES.ProductController);
+const memoryStorage: StorageEngine = multer.memoryStorage();
+const upload: Multer = multer({
   storage: memoryStorage,
+  // Add these options to ensure file parsing
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
 });
 
 // GET routes

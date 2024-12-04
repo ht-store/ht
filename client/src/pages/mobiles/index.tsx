@@ -86,10 +86,6 @@ const Product = ({ product }: ProductProps) => {
         <div className="flex flex-col gap-1 px-2">
           <div className="flex gap-1 text-gray-800 items-center">
             <span className="pr-2">•</span>
-            <span className="text-sm">Bảo hành 12 tháng chính hãng</span>
-          </div>
-          <div className="flex gap-1 text-gray-800 items-center">
-            <span className="pr-2">•</span>
             <span className="text-sm">Giao hàng miễn phí toàn quốc</span>
           </div>
         </div>

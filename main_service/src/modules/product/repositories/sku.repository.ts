@@ -18,17 +18,30 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
     super(skus);
   }
 
-  async search(name: string, page: number, limit: number) {
+  async search(name: string | null, page: number, limit: number, brandId: number | null) {
     logger.info(`Searching for skus with name ${name}`);
-    return await this.db
+    
+    // Build the query conditionally based on brandId
+    const query = this.db
       .select()
       .from(skus)
-      .leftJoin(
+      .innerJoin(
         prices,
         and(eq(skus.id, prices.skuId), eq(prices.activate, true))
       )
-      .where(ilike(skus.name, `%${name}%`));
-  }
+      .innerJoin(
+        products,
+        eq(products.id, skus.productId)
+      )
+      .where(
+        and(
+          ilike(skus.name, `%${name ?? ''}%`),
+          brandId !== null ? eq(products.brandId, brandId) : undefined
+        )
+      );
+
+    return await query;
+}
 
   async findByProductId(productId: number) {
     const data = await this.db

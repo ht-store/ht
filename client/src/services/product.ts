@@ -2,6 +2,7 @@ import request from "@/lib/utils/axios";
 import { AxiosResponse } from "axios";
 
 export const getProducts = async (query?: {
+  brandId?: number | null;
   name?: string | null;
   min_price?: number | null;
   max_price?: number | null;

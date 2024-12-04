@@ -29,14 +29,14 @@ export class ProductController {
       const name = req.query.name as string;
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 18;
-
-
-
+      const brandId = req.query.name as string;
+      
       // Call the service layer method
       const products = await this.productService.searchProducts(
-        name || "",
+        name || null,
         page || 1,
-        pageSize
+        pageSize,
+        parseInt(req.query.brandId as string) || null,
       );
       const response = {
         success: true,
@@ -261,6 +261,7 @@ export class ProductController {
 
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(req.files)
       const images = req.files as Express.Multer.File[] | undefined;
       if (!images || images.length === 0) {
         res.status(400).json({ message: "No images uploaded" });

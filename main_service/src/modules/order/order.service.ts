@@ -325,7 +325,7 @@ export class OrderService implements IOrderService {
       // Start transaction
       // Create order
       const newOrder = await this.orderRepo.add(orderData);
-
+      console.log("order", newOrder)
       // Process each line item
       await Promise.all(
         lineItems.data.map(async (item, index) => {
@@ -334,6 +334,7 @@ export class OrderService implements IOrderService {
           }
 
           const productItem = productItems[index];
+          console.log("productItem", productItem)
 
           // Get available product serials
 
@@ -379,7 +380,7 @@ export class OrderService implements IOrderService {
         orderStatus: OrderStatus.PROCESSING,
       });
 
-      await DB.delete(cartItems).where(eq(cartItems.cartId, +session.metadata.cartId)).execute();
+      await DB.delete(cartItems).where(eq(cartItems.cartId, +session.metadata.cart_id)).execute();
 
       // Send order confirmation
       // await this.sendOrderConfirmation(order);

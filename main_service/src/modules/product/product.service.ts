@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { PutObjectCommand, PutObjectCommandOutput, S3Client } from "@aws-sdk/client-s3";
 import md5 from 'md5'
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
@@ -36,9 +36,9 @@ export class ProductService implements IProductService {
     this.s3Client = this.createS3Client();
   }
   
-  async searchProducts(name: string, page: number, limit: number) {
+  async searchProducts(name: string | null, page: number, limit: number, brandId: number | null) {
     console.log("Searching products with name: " + name);
-    return await this.skuRepository.search(name, page, limit);
+    return await this.skuRepository.search(name, page, limit, brandId);
   }
 
   async getProducts(
@@ -224,7 +224,7 @@ export class ProductService implements IProductService {
     const imageNameWithoutExt = image.originalname.split(".").slice(0, -1).join("."); // Tên file không có đuôi mở rộng
 
     // Tạo hash MD5 từ tên image và thời gian hiện tại để tránh trùng lặp
-    const hash = md5(imageNameWithoutExt + Date.now());
+    const hash = md5(imageNameWithoutExt.trim() + Date.now());
     const fullImageName = `${uploadPrefix}${hash}.${extension}`; // Tạo tên file
     await this.putObjCommand(fullImageName, imageData);
 
@@ -245,9 +245,9 @@ export class ProductService implements IProductService {
     });
   }
 
-  private async putObjCommand(fileName: string, data: any) {
+  private async putObjCommand(fileName: string, data: any): Promise<PutObjectCommandOutput> {
     try {
-      await this.s3Client.send(
+      const res: PutObjectCommandOutput = await this.s3Client.send(
         new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_SKUS_BUCKET_NAME,
           Key: fileName,
@@ -255,6 +255,7 @@ export class ProductService implements IProductService {
           ContentType: "image/png", // Đảm bảo phần này là đúng loại nội dung
         })
       );
+      return res
     } catch (error) {
       console.error("Error uploading object to R2 bucket:", error);
       throw error;
@@ -270,7 +271,7 @@ export class ProductService implements IProductService {
             name: sku.name,
             slug: sku.slug,
             productId,
-            image: "",
+            image: sku.image || process.env.IMG_DEFAULT_URL!,
           });
 
           if (!createdSku?.id) {

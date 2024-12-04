@@ -46,13 +46,15 @@ export class ImportOrderService implements IImportOrderService {
       const orderDate =
         data.importDate || new Date().toISOString().split("T")[0];
       const { importOrderItems } = data;
+      const totalAmount = importOrderItems
+        .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+        .toFixed(2)
+      console.log(totalAmount)
       const order = await this.importOrderRepository.add({
         orderDate: orderDate,
         supplierId: data.supplierId,
         status: data.status,
-        totalAmount: importOrderItems
-          .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-          .toFixed(2),
+        totalAmount,
       });
       console.log(order);
 

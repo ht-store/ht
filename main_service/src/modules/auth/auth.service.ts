@@ -65,8 +65,8 @@ export class AuthService implements IAuthService {
 
       const token = this.generateToken(user.id, user.roleId);
       await this.updateRefreshTokenHash(user.id, token.refresh_token);
-      const cart = await this.cartRepository.findByUserId(user.id);
-      if (!cart) {
+      const carts = await this.cartRepository.findByUserId(user.id);
+      if (!carts.length) {
         await this.cartRepository.add({
           userId: user.id,
           cartStatus: "active",
