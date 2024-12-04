@@ -87,12 +87,24 @@ const Products = () => {
       setSelectedProduct(null);
     }
   };
-  const handleViewDetails = async (id) => {
-    console.log(id);
+  const handleViewDetails = async (productId, skusId) => {
+    console.log(productId, skusId);
+    console.log(5);
     try {
-      const response = await axios.get(`http://localhost:8001/products/${id}`);
+      const response = await axios.get(
+        `http://localhost:8001/products/${productId}`
+      );
       console.log(response.data);
-      setSelectedProduct(response.data.data);
+      const result = await axios.get(
+        `http://localhost:8001/warranties/warranty/${skusId}`
+      );
+      console.log(result.data);
+      const data = {
+        ...response.data.data,
+        warrantyPeriod: result.data.warrantyPeriod,
+        warrantyConditions: result.data.warrantyConditions,
+      };
+      setSelectedProduct(data);
     } catch (err) {
       setError("Failed to fetch Products");
     }
@@ -135,6 +147,18 @@ const Products = () => {
       setError("Failed to delete Products");
     }
   };
+  const handleDeleteWarranty = async (id) => {
+    try {
+      const result = await axios.get(
+        `http://localhost:8001/warranties/warranty/${id}`
+      );
+      await axios.delete(
+        `http://localhost:8001/warranties/warranty/${result.data.id}`
+      );
+    } catch (err) {
+      setError("Failed to fetch Products");
+    }
+  };
 
   const columns = [
     { name: "id", label: "ID" },
@@ -161,7 +185,7 @@ const Products = () => {
           return (
             <div className="flex space-x-2">
               <button
-                onClick={() => handleViewDetails(data.productId)}
+                onClick={() => handleViewDetails(data.productId, data.id)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               >
                 View Details
@@ -177,6 +201,18 @@ const Products = () => {
                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
                 Create warranty
+              </button>
+              <button
+                onClick={() => handleAddWarranty(data.id)}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              >
+                Update warranty
+              </button>
+              <button
+                onClick={() => handleDeleteWarranty(data.id)}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              >
+                Delete warranty
               </button>
             </div>
           );

@@ -44,6 +44,14 @@ const Sidebar = () => {
             Xử lí bảo hành
           </Link>
         </li>
+        <li>
+          <Link
+            to="/statistical"
+            className="block p-2 hover:bg-gray-700 rounded"
+          >
+            Thống kê
+          </Link>
+        </li>
       </ul>
     </div>
   );

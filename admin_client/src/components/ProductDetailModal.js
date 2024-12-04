@@ -10,6 +10,8 @@ const ProductDetailModal = ({ open, onClose, product }) => {
     { label: "camera", value: product.camera },
     { label: "processor", value: product.processor },
     { label: "os", value: product.os },
+    { label: "warrantyPeriod", value: product.warrantyPeriod },
+    { label: "warrantyConditions", value: product.warrantyConditions },
   ];
 
   return (

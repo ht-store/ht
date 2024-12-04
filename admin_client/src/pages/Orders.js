@@ -10,9 +10,8 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8001/orders/history"
-        );
+        const response = await axios.get("http://localhost:8001/orders/all");
+        console.log(response.data);
         const formattedOrders = response.data.data.map((order) => ({
           ...order,
           orderDate: formatDate(order.orderDate),
