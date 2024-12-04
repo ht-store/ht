@@ -169,7 +169,7 @@ const CartPage = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-8 w-full pb-[120px]">
-                {cartItems.map((cartItem) => (
+                  {cartItems.map((cartItem) => (
                   <CartItem
                     setCartItems={setCartItems}
                     cartId={cartId!}

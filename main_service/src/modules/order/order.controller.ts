@@ -83,21 +83,16 @@ export class OrderController {
     }
   }
 
-  async listHistoryOrders(req: Request, res: Response): Promise<void> {
+  async listHistoryOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.userId
-        ? parseInt(req.query.userId as string)
-        : 1
       const orders = await this.orderService.listOrderHistory(userId);
       res.status(200).json({  
         success: true,
         data: orders,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Error retrieving orders",
-      });
+      next(error)
     }
   }
 
