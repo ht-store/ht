@@ -10,6 +10,7 @@ import flashLogo from "@/assets/svgs/flash.svg";
 import { formatMoneyVND } from "@/lib/utils/price";
 import { addItemToCart, getMyCart } from "@/services/cart";
 import { getProduct, getStorage } from "@/services/product";
+import { orderCheckout } from "@/services/order";
 
 interface Attribute {
   id: number;
@@ -49,7 +50,7 @@ interface ProductResponse {
 const DetailProduct = () => {
   const { productId, skuId } = useParams();
   const navigate = useNavigate();
-  const [cartId, setCartId] = useState<number | null>(1);
+  const [cartId, setCartId] = useState<number | undefined>(1);
   const [productData, setProductData] = useState<ProductResponse | null>(null);
   const [selectedColor, setSelectedColor] = useState<Attribute | null>(null);
   const [selectedStorage, setSelectedStorage] = useState<Attribute | null>(
@@ -136,13 +137,37 @@ const DetailProduct = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    if (cartId === undefined) {
+      toast.error("Xin vui lòng đăng nhập mua sản phẩm");
+      return;
+    }
+    const rs = await orderCheckout({
+      cartId: cartId,
+      items: [
+        {
+          name: product.skuName,
+          image: product.skuImage,
+          skuId: product.skuId,
+          quantity: 1,
+          price: product.price,
+        }
+      ]
+
+    });
+
+    if (rs.data.data) {
+      window.open(rs.data.data, "_self");
+    }
+  };
+
   const handleBuyNow = async () => {
+    console.log(product)
     if (!selectedColor || !selectedStorage) {
       toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
-    console.log("Buy now with:", { selectedColor, selectedStorage });
-    // Add your logic for handling 'Buy Now'
+    await handleCheckout()
   };
 
   if (!productData) {
