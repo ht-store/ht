@@ -40,7 +40,6 @@ export interface IWarrantyService {
   ): Promise<number>;
   getClaimCostsByClaimId(claimId: number): Promise<WarrantyClaimCost[]>;
   getAllClaims(): Promise<WarrantyClaim[]>;
-
   // Lấy warranty theo trạng thái
   getClaimsByStatus(status: string): Promise<WarrantyClaim[]>;
 

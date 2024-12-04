@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment: 
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+        - 9092:9092
+  postgres:
+    image: postgres:16
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: maiphuonglam
+      POSTGRES_PASSWORD: mpl08092002
+      POSTGRES_DB: store
+
+# redis:
+#   image: redis/redis-stack:latest
+#   command: >
+#     redis-server
+#     --save ""
+#     --appendonly no
+#     --requirepass @UnityScore123!
+#     --stop-writes-on-bgsave-error no
+#     --protected-mode yes
+#   ports:
+#     - $6379:6379
+#   volumes:
+#     - redis:/data
+
+# elasticsearch:
+#   image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+#   # container_name: elasticsearch
+#   restart: unless-stopped
+#   environment:
+#     - node.name=es01
+#     - cluster.name=es-docker-cluster
+#     - bootstrap.memory_lock=true
+#     - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+#     - discovery.type=single-node
+#     - xpack.security.enabled=${ELASTICSEARCH_SECURITY}
+#     - ELASTIC_PASSWORD=${ELASTICSEARCH_PASS}
+volumes:
+  postgres:

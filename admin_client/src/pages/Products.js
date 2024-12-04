@@ -39,9 +39,23 @@ const Products = () => {
     setSelectedProduct(null);
   };
 
-  const handleUpdateProduct = (id) => {
+  const fetchProductDetails = async (productId, skuId) => {
+    try {
+      const response = await axios.get(`http://localhost:8001/products/details/${productId}/${skuId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch product details', error);
+    }
+  }
+
+  const handleUpdateProduct = async (id) => {
     const product = products.find((product) => product.id === id);
-    setSelectedProduct(product);
+    const { data } = await fetchProductDetails(product.id, product.productId)
+    setSelectedProduct(data.product);
     setOpenUpdateModal(true);
   };
   const handleAddWarranty = (id) => {
