@@ -107,7 +107,6 @@ const DetailProduct = () => {
     const fetchCart = async () => {
       try {
         const response = await getMyCart();
-        console.log(response.data);
         setCartId(response.data.data[0].cartId);
       } catch (error) {
         console.error("Error fetching cart:", error);
@@ -136,8 +135,12 @@ const DetailProduct = () => {
       toast.error("Không thể thêm sản phẩm vào giỏ hàng");
     }
   };
-
-  const handleCheckout = async () => {
+  const handleCheckout = async (paymentType: string) => {
+    if (!productData || !selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
+      return;
+    }
+    
     if (cartId === undefined) {
       toast.error("Xin vui lòng đăng nhập mua sản phẩm");
       return;
@@ -148,12 +151,12 @@ const DetailProduct = () => {
         {
           name: product.skuName,
           image: product.skuImage,
-          skuId: product.skuId,
+          skuId: selectedStorage.skuId,
           quantity: 1,
           price: product.price,
         }
-      ]
-
+      ],
+      paymentType
     });
 
     if (rs.data.data) {
@@ -161,13 +164,24 @@ const DetailProduct = () => {
     }
   };
 
-  const handleBuyNow = async () => {
+  const handlePaymentByCard = async () => {
     console.log(product)
     if (!selectedColor || !selectedStorage) {
       toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
-    await handleCheckout()
+    await handleCheckout("card")
+  };
+
+  const handlePaymentByCash = async () => {
+    console.log(11)
+    console.log(product)
+    if (!selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
+      return;
+    }
+    const res = await handleCheckout("cash")
+    navigate('/success')
   };
 
   if (!productData) {
@@ -202,17 +216,23 @@ const DetailProduct = () => {
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     onClick={handleAddItemToCart}
-                    className="bg-yellow-500 w-[46%] hover:bg-yellow-400 flex gap-2 items-center"
+                    className="bg-yellow-500 w-[36%] hover:bg-yellow-400 flex gap-2 items-center"
                   >
                     <img className="w-[26px]" src={cartLogo} alt="cart" />
                     THÊM VÀO GIỎ HÀNG
                   </Button>
                   <Button
-                    onClick={handleBuyNow}
-                    className="bg-orange-500 w-[46%] hover:bg-orange-400 flex gap-2 items-center"
+                    onClick={handlePaymentByCard}
+                    className="bg-orange-500 w-[36%] hover:bg-orange-400 flex gap-2 items-center"
                   >
                     <img className="w-[26px]" src={flashLogo} alt="flash" />
-                    MUA NGAY
+                    MUA NGAY (CARD)
+                  </Button>
+                  <Button
+                    onClick={handlePaymentByCash}
+                    className="bg-green-500 w-[36%] hover:bg-green-400 flex gap-2 items-center"
+                  >
+                    MUA NGAY (TIỀN MẶT)
                   </Button>
                 </div>
               </div>

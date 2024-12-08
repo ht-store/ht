@@ -64,11 +64,8 @@ export class WarrantyService implements IWarrantyService {
     return newWarranty.id;
   }
 
-  async getWarrantyBySkuId(skuId: number): Promise<Warranty> {
+  async getWarrantyBySkuId(skuId: number): Promise<Warranty | null> {
     const warranty = await this.warrantyRepository.findBySkuId(skuId);
-    if (!warranty) {
-      throw new Error(`Warranty not found for SKU ID: ${skuId}`);
-    }
     return warranty;
   }
 

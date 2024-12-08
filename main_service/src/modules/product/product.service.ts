@@ -141,8 +141,12 @@ export class ProductService implements IProductService {
         )
       )
     );
-
-    return skustorages;
+    const flattenedStorages = skustorages.flat();
+    const uniqueStorages = Array.from(
+      new Map(flattenedStorages.map((storage) => [storage?.value, storage])).values()
+    );
+  
+    return uniqueStorages;
   }
 
   async getDetail(productId: number, skuId: number) {

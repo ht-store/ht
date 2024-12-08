@@ -11,7 +11,7 @@ export interface IWarrantyService {
     warrantyPeriod: number,
     warrantyConditions?: string
   ): Promise<number>;
-  getWarrantyBySkuId(skuId: number): Promise<Warranty>;
+  getWarrantyBySkuId(skuId: number): Promise<Warranty | null>;
   updateWarrantyConditions(
     warrantyId: number,
     warrantyConditions: string

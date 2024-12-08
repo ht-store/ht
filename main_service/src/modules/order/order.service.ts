@@ -177,13 +177,6 @@ export class OrderService implements IOrderService {
             serialId: serial.id,
           };
           await this.orderItemRepo.add(orderItemData);
-          await this.orderItemRepo.add({
-            orderId: order.id,
-            price: item.price_data.unit_amount.toString(),
-            quantity: item.quantity,
-            skuId: +item.price_data.product_data.metadata.skuId,
-            serialId: serial.id,
-          });
           await this.productSerialRepository.update(serial.id, {
             status: "sold",
           });
@@ -192,12 +185,16 @@ export class OrderService implements IOrderService {
             1,
             -1
           );
+          const warranty = await this.warrantyService.getWarrantyBySkuId(+item.price_data.product_data.metadata.skuId)
+          if (warranty) {
+            await this.warrantyService.activateWarranty(serial.id, warranty.id, new Date())
+          }
         }
         if (checkoutDto.cartId) {
           await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
         }
 
-        return "Cash payment order created successfully";
+        return config.SUCCESS_URL;
       }
       let stripeId = user.stripeId;
       if (!stripeId) {

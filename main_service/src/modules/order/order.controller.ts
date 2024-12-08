@@ -5,6 +5,7 @@ import { BadRequestError, NotFoundError } from "src/shared/errors";
 import { CreateOrder, CreateOrderItem } from "src/shared/database/schemas";
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
+import { logger } from "src/shared/middlewares";
 
 @injectable()
 export class OrderController {
@@ -105,7 +106,7 @@ export class OrderController {
       const checkoutData: CheckoutType = req.body;
       const userId = req.userId || 1; // Assumes authenticated user
       const paymentType = req.body.paymentType;
-
+      logger.info(paymentType)
       if (!userId) {
         throw new BadRequestError("User ID is required");
       }

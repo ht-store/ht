@@ -12,6 +12,7 @@ type ProductCartItem = {
 type CheckoutBody = {
   cartId?: number;
   items: ProductCartItem[];
+  paymentType?: string;
 };
 
 export const orderCheckout = async (
