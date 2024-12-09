@@ -35,6 +35,7 @@ export class ProductService implements IProductService {
   ) {
     this.s3Client = this.createS3Client();
   }
+
   
   async searchProducts(name: string | null, page: number, limit: number, brandId: number | null) {
     console.log("Searching products with name: " + name);

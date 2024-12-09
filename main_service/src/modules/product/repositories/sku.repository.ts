@@ -8,6 +8,7 @@ import {
   Sku,
   skuAttributes,
   skus,
+  warranties,
 } from "src/shared/database/schemas";
 import { ISkuRepository } from "src/shared/interfaces/repositories";
 import { logger } from "src/shared/middlewares";
@@ -33,6 +34,7 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
         products,
         eq(products.id, skus.productId)
       )
+      .leftJoin(warranties, eq(warranties.skuId, skus.id))
       .where(
         and(
           ilike(skus.name, `%${name ?? ''}%`),
