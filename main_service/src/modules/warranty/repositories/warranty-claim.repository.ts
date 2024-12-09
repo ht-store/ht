@@ -23,7 +23,7 @@ export class WarrantyClaimRepository
   }
 
 
-  async findAll() {
+  async findAll2() {
     return await this.db
         .select({
             id: warrantyClaims.id,

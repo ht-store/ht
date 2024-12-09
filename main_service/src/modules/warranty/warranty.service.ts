@@ -31,9 +31,20 @@ export class WarrantyService implements IWarrantyService {
     @inject(TYPES.ProductSerialRepository)
     private productSerialRepository: IProductSerialRepository
   ) {}
-  async getAllClaims(): Promise<WarrantyClaim[]> {
+  async getAllClaims(): Promise<Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+}[]>> {
     try {
-      return await this.warrantyClaimRepository.findAll();
+      return await this.warrantyClaimRepository.findAll2();
     } catch(err) {
       throw err
     }
@@ -133,7 +144,10 @@ export class WarrantyService implements IWarrantyService {
   // Warranty Claim Methods
   async createClaim(
     serial: string,
-    issueDescription: string
+    issueDescription: string,
+    repairCost: number,
+    partsCost: number,
+    shippingCost: number
   ): Promise<number> {
     const productSeri = await this.productSerialRepository.findBySerial(serial)
     if (!productSeri) {
@@ -155,6 +169,11 @@ export class WarrantyService implements IWarrantyService {
       claimStatus: "pending",
       resolution: null,
     });
+    console.log(repairCost);
+    console.log(partsCost); 
+
+    
+    await this.addClaimCost(claim.id, repairCost, partsCost, shippingCost);
     return claim.id;
   }
 
@@ -183,6 +202,7 @@ export class WarrantyService implements IWarrantyService {
     shippingCost: number,
     currency: string = "VND"
   ): Promise<number> {
+    console.log(repairCost)
     const cost = await this.warrantyClaimCostRepository.add({
       claimId,
       repairCost: repairCost.toFixed(2),

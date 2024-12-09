@@ -99,7 +99,7 @@ export class WarrantyController {
 
   // Endpoint to create a warranty claim
   async createClaim(req: Request, res: Response): Promise<void> {
-    const { serial, issueDescription } = req.body;
+    const { serial, issueDescription, repairCost, partsCost, shippingCost } = req.body;
 
     if (!serial || !issueDescription) {
       throw new BadRequestError(
@@ -110,7 +110,9 @@ export class WarrantyController {
     try {
       const claimId = await this.warrantyService.createClaim(
         serial,
-        issueDescription
+        issueDescription,
+        repairCost, partsCost, shippingCost,
+        "VND"
       );
       res
         .status(201)

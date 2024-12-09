@@ -27,7 +27,11 @@ export interface IWarrantyService {
   updateWarrantyStatus(serialId: number, status: string): Promise<void>;
   createClaim(
     serial: string,
-    issueDescription: string
+    issueDescription: string,
+    repairCost: number, 
+    partsCost: number, 
+    shippingCost: number,
+    currency: string
   ): Promise<number>;
   getClaimsByWarrantyId(productWarrantyId: number): Promise<WarrantyClaim[]>;
   updateClaimStatus(claimId: number, status: string): Promise<void>;
@@ -39,7 +43,18 @@ export interface IWarrantyService {
     currency?: string
   ): Promise<number>;
   getClaimCostsByClaimId(claimId: number): Promise<WarrantyClaimCost[]>;
-  getAllClaims(): Promise<WarrantyClaim[]>;
+  getAllClaims(): Promise<Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+}[]>>;
   // Lấy warranty theo trạng thái
   getClaimsByStatus(status: string): Promise<WarrantyClaim[]>;
 
