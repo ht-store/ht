@@ -7,8 +7,7 @@ const UserDetailModal = ({ open, onClose, user }) => {
     { label: "Name", value: user.name },
     { label: "Email", value: user.email },
     { label: "Role", value: user.roleId },
-    { label: "Rt", value: user.rt },
-    { label: "StripeId", value: user.stripeId },
+
     { label: "PhoneNumber", value: user.phoneNumber },
   ];
 

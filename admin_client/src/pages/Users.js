@@ -100,14 +100,14 @@ const Users = () => {
   };
 
   const columns = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
+    { name: "id", label: "Id" },
+    { name: "name", label: "Tên" },
     { name: "email", label: "Email" },
-    { name: "phoneNumber", label: "PhoneNumber" },
-    { name: "roleId", label: "Role" },
+    { name: "phoneNumber", label: "Số điện thoại" },
+    { name: "roleId", label: "Vai trò" },
     {
       name: "actions",
-      label: "Actions",
+      label: "Khác",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
           const id = tableMeta.rowData[0];
@@ -117,13 +117,13 @@ const Users = () => {
                 onClick={() => handleViewDetails(id)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               >
-                View Details
+                Xem thông tin chi tiết
               </button>
               <button
                 onClick={() => handleUpdateUser(id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Update
+                Cập nhật
               </button>
             </div>
           );
@@ -145,7 +145,7 @@ const Users = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl">User Management</h1>
+        <h1 className="text-2xl">Quản lí người dùng</h1>
       </div>
 
       {loading && <p>Loading users...</p>}
@@ -153,7 +153,7 @@ const Users = () => {
 
       {!loading && !error && (
         <ReusableTable
-          title="User List"
+          title="Danh sách người dùng"
           columns={columns}
           data={users || []}
           options={options}

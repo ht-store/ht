@@ -55,6 +55,10 @@ const Dashboard = () => {
         "http://localhost:8001/import-orders",
         formData
       );
+      setImportOrder((prevImportOrders) => [
+        ...prevImportOrders,
+        response.data.data,
+      ]);
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
@@ -63,11 +67,11 @@ const Dashboard = () => {
     }
   };
   const columns = [
-    { name: "id", label: "ID" },
-    { name: "supplierId", label: "supplierId" },
+    { name: "id", label: "Id" },
+    { name: "supplierId", label: "Nhà cung cấp" },
     {
       name: "orderDate",
-      label: "Order Date",
+      label: "Ngày tạo",
       options: {
         customBodyRender: (value) => {
           if (!value) return "-";
@@ -81,15 +85,15 @@ const Dashboard = () => {
     },
     {
       name: "status",
-      label: "status",
+      label: "Trạng thái",
     },
     {
       name: "totalAmount",
-      label: "totalAmount",
+      label: "Tổng tiền",
     },
     {
       name: "actions",
-      label: "Actions",
+      label: "Khác",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
           const data = importOrders[tableMeta.rowIndex];
@@ -99,7 +103,7 @@ const Dashboard = () => {
                 onClick={() => handleViewDetails(data.id)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               >
-                View Details
+                Xem chi tiết đơn nhập
               </button>
             </div>
           );
@@ -120,12 +124,12 @@ const Dashboard = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl">ImportOrder Management</h1>
+        <h1 className="text-2xl">Quản lí phiếu nhập</h1>
         <button
           onClick={handleAddClick}
           className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          <i className="fas fa-plus-circle mr-2"></i> Add ImportOrder
+          <i className="fas fa-plus-circle mr-2"></i> Tạo phiếu nhập
         </button>
       </div>
 
@@ -134,7 +138,7 @@ const Dashboard = () => {
 
       {!loading && !error && (
         <ReusableTable
-          title="ImportOrder List"
+          title="Danh sách đơn nhập"
           columns={columns}
           data={importOrders || []}
           options={options}

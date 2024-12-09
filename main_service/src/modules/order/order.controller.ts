@@ -154,4 +154,24 @@ export class OrderController {
       });
     }
   }
+
+  async updateOrderStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const orderId = parseInt(req.params.id);
+      const newStatus = req.body.status;
+
+      if (isNaN(orderId)) {
+        throw new BadRequestError("Invalid order ID");
+      }
+
+      const updatedOrder = await this.orderService.updateOrderStatus(orderId, newStatus);
+      res.status(200).json({
+        success: true,
+        data: updatedOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+      
 }

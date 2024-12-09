@@ -100,15 +100,15 @@ const Suppliers = () => {
   };
 
   const columns = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
-    { name: "contactName", label: "contactName" },
-    { name: "phoneNumber", label: "phoneNumber" },
+    { name: "id", label: "Id" },
+    { name: "name", label: "Tên" },
+    { name: "contactName", label: "Tên liên hệ" },
+    { name: "phoneNumber", label: "Số điện thoại" },
     { name: "email", label: "Email" },
-    { name: "address", label: "Address" },
+    { name: "address", label: "Địa chỉ" },
     {
       name: "actions",
-      label: "Actions",
+      label: "Khác",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
           const id = tableMeta.rowData[0];
@@ -116,9 +116,9 @@ const Suppliers = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleUpdateSuppliers(id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Update
+                Cập nhật
               </button>
             </div>
           );
@@ -140,12 +140,12 @@ const Suppliers = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl">Suppliers Management</h1>
+        <h1 className="text-2xl">Quản lí nhà cung cấp</h1>
         <button
           onClick={handleAddClick}
           className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          <i className="fas fa-plus-circle mr-2"></i> Add Suppliers
+          <i className="fas fa-plus-circle mr-2"></i> Thêm nhà cung cấp
         </button>
       </div>
 
@@ -154,7 +154,7 @@ const Suppliers = () => {
 
       {!loading && !error && (
         <ReusableTable
-          title="Suppliers List"
+          title="Danh sách nhà cung cấp"
           columns={columns}
           data={suppliers || []}
           options={options}

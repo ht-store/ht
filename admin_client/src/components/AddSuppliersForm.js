@@ -3,26 +3,26 @@ import AddForm from "./AddForm";
 
 const AddSuppliersForm = ({ onSubmit, onClose }) => {
   const fields = [
-    { name: "name", label: "Name", type: "text", required: true },
+    { name: "name", label: "Tên", type: "text", required: true },
     {
       name: "contactName",
-      label: "contactName",
+      label: "Tên liên hệ",
       type: "text",
       required: true,
     },
     {
       name: "phoneNumber",
-      label: "phoneNumber",
+      label: "Số điện thoại",
       type: "text",
       required: true,
     },
     { name: "email", label: "Email", type: "email", required: true },
-    { name: "address", label: "Address", type: "text", required: true },
+    { name: "address", label: "Địa chỉ", type: "text", required: true },
   ];
 
   return (
     <AddForm
-      title="Add New Suppliers"
+      title="Thêm nhà cung cấp"
       fields={fields}
       onSubmit={onSubmit}
       onClose={onClose}

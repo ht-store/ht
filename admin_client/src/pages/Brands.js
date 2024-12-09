@@ -96,12 +96,12 @@ const Brands = () => {
   };
 
   const columns = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
+    { name: "id", label: "Id" },
+    { name: "name", label: "Tên thương hiệu" },
 
     {
       name: "actions",
-      label: "Actions",
+      label: "Khác",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
           const id = tableMeta.rowData[0];
@@ -109,9 +109,9 @@ const Brands = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleUpdateBrand(id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Update
+                Cập nhật
               </button>
             </div>
           );
@@ -133,12 +133,12 @@ const Brands = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl">Brand Management</h1>
+        <h1 className="text-2xl">Quản lí thương hiệu</h1>
         <button
           onClick={handleAddClick}
           className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          <i className="fas fa-plus-circle mr-2"></i> Add Brand
+          <i className="fas fa-plus-circle mr-2"></i> Thêm thương hiệu
         </button>
       </div>
 
@@ -147,7 +147,7 @@ const Brands = () => {
 
       {!loading && !error && (
         <ReusableTable
-          title="Brand List"
+          title="Danh sách thương hiệu"
           columns={columns}
           data={brands || []}
           options={options}

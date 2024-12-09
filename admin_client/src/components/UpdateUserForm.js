@@ -5,7 +5,7 @@ const UpdateUserForm = ({ initialData, onSubmit, onClose }) => {
   const userFields = [
     {
       name: "name",
-      label: "Name",
+      label: "Tên",
       type: "text",
       placeholder: "Enter user name",
     },
@@ -17,19 +17,19 @@ const UpdateUserForm = ({ initialData, onSubmit, onClose }) => {
     },
     {
       name: "password",
-      label: "New Password",
+      label: "Mật khẩu",
       type: "password",
       placeholder: "Enter password address",
     },
     {
       name: "phoneNumber",
-      label: "Phone Number",
+      label: "Số điện thoại",
       type: "tel",
       placeholder: "Enter phone number",
     },
     {
       name: "roleId",
-      label: "Role",
+      label: "Vai trò",
       type: "number",
       placeholder: "Enter role (e.g., Admin, User)",
     },
@@ -37,7 +37,7 @@ const UpdateUserForm = ({ initialData, onSubmit, onClose }) => {
 
   return (
     <UpdateForm
-      title="Update User"
+      title="Cập nhật người dùng"
       fields={userFields}
       initialData={initialData}
       onSubmit={onSubmit}

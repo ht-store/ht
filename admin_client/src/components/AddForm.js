@@ -34,13 +34,13 @@ const AddForm = ({ fields, onSubmit, onClose, title }) => {
               onClick={onClose}
               className="px-4 py-2 bg-gray-400 text-white rounded-md"
             >
-              Cancel
+              Hủy bỏ
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-500 text-white rounded-md"
             >
-              Submit
+              Thêm
             </button>
           </div>
         </form>

@@ -10,7 +10,6 @@ const AddProductForm = ({ onClose, onSubmit }) => {
     camera: "",
     processor: "",
     os: "",
-    image: "",
     originalPrice: "",
   });
 
@@ -20,6 +19,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
       storage: "",
       color: "",
       price: "",
+      image: "",
     },
   ]);
 
@@ -50,7 +50,36 @@ const AddProductForm = ({ onClose, onSubmit }) => {
     setDetails(newDetails);
   };
 
-  // Format screenSize and battery values
+  const handleFileChange = async (index, event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("images", file);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8001/products/upload-image",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log(response.data);
+        const uploadedImage = response.data.data.image_url;
+
+        const newDetails = [...details];
+        newDetails[index].image = uploadedImage;
+
+        setDetails(newDetails);
+      } catch (error) {
+        console.error("File upload failed:", error);
+      }
+    }
+  };
+
   const formatValue = (key, value) => {
     if (key === "battery" && value) {
       return `${value} mAh`;
@@ -68,6 +97,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
         storage: "",
         color: "",
         price: "",
+        image: "",
       },
     ]);
   };
@@ -87,7 +117,6 @@ const AddProductForm = ({ onClose, onSubmit }) => {
       screenSize: product.screenSize ? `${product.screenSize} inches` : "",
     };
 
-    // Tạo các chi tiết sản phẩm với name, slug, attributes và price
     const formattedDetails = details.map((detail, index) => {
       const name = `${product.name} ${detail.storage} ${detail.color}`;
       const slug = `${product.name
@@ -98,8 +127,8 @@ const AddProductForm = ({ onClose, onSubmit }) => {
         )}-${detail.storage.toLowerCase()}-${detail.color.toLowerCase()}`;
 
       const attributes = [
-        { attributeId: 2, value: detail.storage }, // 2 là ID cho storage
-        { attributeId: 1, value: detail.color }, // 1 là ID cho color
+        { attributeId: 2, value: detail.storage },
+        { attributeId: 1, value: detail.color },
       ];
 
       return {
@@ -107,6 +136,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
         slug,
         attributes,
         price: detail.price,
+        imageUrl: detail.image,
       };
     });
 
@@ -151,6 +181,10 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                     ? "Kích thước màn hình"
                     : key === "battery"
                     ? "Pin"
+                    : key === "name"
+                    ? "Tên sản phẩm"
+                    : key === "originalPrice"
+                    ? "Giá gốc"
                     : key}
                 </label>
                 <input
@@ -173,60 +207,94 @@ const AddProductForm = ({ onClose, onSubmit }) => {
       <div>
         <h3 className="text-lg font-semibold mb-2">Chi tiết sản phẩm</h3>
         {details.map((detail, index) => (
-          <div key={index} className="mb-4 p-4 border rounded-md bg-white">
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-1">
-                Dung lượng
-              </label>
-              <input
-                type="text"
-                name="storage"
-                placeholder="Dung lượng"
-                value={detail.storage}
-                onChange={(e) =>
-                  handleDetailChange(index, "storage", e.target.value)
+          <div
+            key={index}
+            className="mb-4 p-4 border rounded-md bg-white flex justify-center "
+          >
+            <div className="mb-2 w-1/3">
+              <label className="block text-sm font-medium mb-1">Hình ảnh</label>
+              <div
+                onClick={() =>
+                  document.getElementById(`fileInput-${index}`).click()
                 }
-                className="block w-full p-2 border rounded-md"
+                className="w-full p-6 border border-dashed rounded-md text-center cursor-pointer"
+              >
+                {detail.image ? (
+                  <img
+                    src={detail.image}
+                    alt="Product Image"
+                    className="w-32 h-32 object-cover mx-auto"
+                  />
+                ) : (
+                  <span className="text-gray-500">Chọn hình ảnh</span>
+                )}
+              </div>
+              <input
+                id={`fileInput-${index}`}
+                type="file"
+                onChange={(e) => handleFileChange(index, e)}
+                className="hidden"
               />
             </div>
 
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-1">Màu sắc</label>
-              <input
-                type="text"
-                name="color"
-                placeholder="Màu sắc"
-                value={detail.color}
-                onChange={(e) =>
-                  handleDetailChange(index, "color", e.target.value)
-                }
-                className="block w-full p-2 border rounded-md"
-              />
-            </div>
+            <div className="flex-1">
+              <div className="mb-2">
+                <label className="block text-sm font-medium mb-1">
+                  Dung lượng
+                </label>
+                <input
+                  type="text"
+                  name="storage"
+                  placeholder="Dung lượng"
+                  value={detail.storage}
+                  onChange={(e) =>
+                    handleDetailChange(index, "storage", e.target.value)
+                  }
+                  className="block w-full p-2 border rounded-md"
+                />
+              </div>
 
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-1">Giá</label>
-              <input
-                type="text"
-                name="price"
-                placeholder="Giá"
-                value={detail.price}
-                onChange={(e) =>
-                  handleDetailChange(index, "price", e.target.value)
-                }
-                className="block w-full p-2 border rounded-md"
-              />
-            </div>
+              <div className="mb-2">
+                <label className="block text-sm font-medium mb-1">
+                  Màu sắc
+                </label>
+                <input
+                  type="text"
+                  name="color"
+                  placeholder="Màu sắc"
+                  value={detail.color}
+                  onChange={(e) =>
+                    handleDetailChange(index, "color", e.target.value)
+                  }
+                  className="block w-full p-2 border rounded-md"
+                />
+              </div>
 
-            <button
-              type="button"
-              onClick={() => removeDetail(index)}
-              className="mt-2 text-red-500"
-            >
-              Xóa chi tiết
-            </button>
+              <div className="mb-2">
+                <label className="block text-sm font-medium mb-1">Giá</label>
+                <input
+                  type="text"
+                  name="price"
+                  placeholder="Giá"
+                  value={detail.price}
+                  onChange={(e) =>
+                    handleDetailChange(index, "price", e.target.value)
+                  }
+                  className="block w-full p-2 border rounded-md"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => removeDetail(index)}
+                className="mt-2 text-red-500"
+              >
+                Xóa chi tiết
+              </button>
+            </div>
           </div>
         ))}
+
         <button
           type="button"
           onClick={addDetail}

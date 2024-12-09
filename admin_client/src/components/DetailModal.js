@@ -14,7 +14,7 @@ const DetailModal = ({ open, onClose, title, fields }) => {
         <div className="flex justify-between items-center">
           <span>{title}</span>
           <Button onClick={onClose} color="primary">
-            Close
+            Đóng
           </Button>
         </div>
       </DialogTitle>

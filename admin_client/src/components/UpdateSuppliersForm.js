@@ -3,24 +3,24 @@ import UpdateForm from "./UpdateForm";
 
 const UpdateSuppliersForm = ({ initialData, onSubmit, onClose }) => {
   const Fields = [
-    { name: "name", label: "Name", type: "text" },
+    { name: "name", label: "Tên", type: "text" },
     {
       name: "contactName",
-      label: "contactName",
+      label: "Tên liên hệ",
       type: "text",
     },
     {
       name: "phoneNumber",
-      label: "phoneNumber",
+      label: "Số điện thoại",
       type: "text",
     },
     { name: "email", label: "Email", type: "email" },
-    { name: "address", label: "Address", type: "text" },
+    { name: "address", label: "Địa chỉ", type: "text" },
   ];
 
   return (
     <UpdateForm
-      title="Update Suppliers"
+      title="Cập nhật nhà cung cấp"
       fields={Fields}
       initialData={initialData}
       onSubmit={onSubmit}

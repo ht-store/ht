@@ -11,6 +11,7 @@ orderRouter.post("/", controller.createOrder.bind(controller));
 orderRouter.get("/history", auth,controller.listHistoryOrders.bind(controller));
 orderRouter.get("/all", auth,controller.listOrders.bind(controller));
 orderRouter.get("/:id", controller.getOrder.bind(controller));
+orderRouter.put("/:id", controller.updateOrderStatus.bind(controller));
 orderRouter.post("/checkout", controller.checkout.bind(controller));
 orderRouter.post("/webhook", controller.handleWebhook.bind(controller));
 

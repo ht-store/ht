@@ -74,9 +74,19 @@ export class OrderService implements IOrderService {
       throw new NotFoundError("Order not found");
     }
     const items = await this.orderItemRepo.getOrderItemsByOrderId(orderId);
+    const user = await this.userRepository.findById(order.userId!);
+    const itemsWithSku = await Promise.all(items.map(async (item) => {
+      const sku = await this.skuRepository.findById(item.skuId);
+      return {
+        ...item,
+        name: sku?.name,
+        image: sku?.image,
+      };
+    }));
     return {
+      ...user,
       ...order,
-      items,
+      items: itemsWithSku,
     };
   }
 
@@ -283,6 +293,14 @@ export class OrderService implements IOrderService {
       }
 
       throw error; // Re-throw for other errors to trigger retry
+    }
+  }
+
+  async updateOrderStatus(id: number, status: OrderStatus) {
+    try {
+      return await this.orderRepo.updateOrderStatus(id, status);
+    } catch (error) {
+      throw error;
     }
   }
   private async handleCompletedCheckoutSession(

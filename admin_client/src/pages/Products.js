@@ -20,8 +20,6 @@ const Products = () => {
         const response = await axios.get("http://localhost:8001/products");
         const skus = response.data.data.map((item) => ({
           ...item.skus,
-          image:
-            "https://cdn-v2.didongviet.vn/files/products/2024/8/10/1/1725964014451_2_iphone_16_pro_sa_mac_didongviet.jpg",
         }));
         setProduct(skus);
       } catch (err) {
@@ -41,22 +39,22 @@ const Products = () => {
 
   const fetchProductDetails = async (productId, skuId) => {
     try {
-      const response = await axios.get(`http://localhost:8001/products/details/${productId}/${skuId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.get(
+        `http://localhost:8001/products/details/${productId}/${skuId}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch product details', error);
+      console.error("Failed to fetch product details", error);
     }
-  }
+  };
 
   const handleUpdateProduct = async (id) => {
     const product = products.find((product) => product.id === id);
-    const { data } = await fetchProductDetails(product.id, product.productId)
-    setSelectedProduct(data.product);
-    setOpenUpdateModal(true);
+
+    const data = await fetchProductDetails(product.productId, product.id);
+    console.log(data);
+    // setSelectedProduct(data.product);
+    // setOpenUpdateModal(true);
   };
   const handleAddWarranty = (id) => {
     const product = products.find((product) => product.id === id);
@@ -109,14 +107,8 @@ const Products = () => {
         `http://localhost:8001/products/${productId}`
       );
       console.log(response.data);
-      const result = await axios.get(
-        `http://localhost:8001/warranties/warranty/${skusId}`
-      );
-      console.log(result.data);
       const data = {
         ...response.data.data,
-        warrantyPeriod: result.data.warrantyPeriod,
-        warrantyConditions: result.data.warrantyConditions,
       };
       setSelectedProduct(data);
     } catch (err) {
@@ -131,7 +123,7 @@ const Products = () => {
   const handleAddProduct = async (formData) => {
     const data = {
       ...formData,
-      product: { ...formData.product, categoryId: 1 },
+      product: { ...formData.product, categoryId: 1, image: "" },
     };
     console.log(data);
     try {
@@ -173,13 +165,22 @@ const Products = () => {
       setError("Failed to fetch Products");
     }
   };
-
+  const handleUpdateWarranty = async (id) => {
+    try {
+      const result = await axios.get(
+        `http://localhost:8001/warranties/warranty/${id}`
+      );
+      console.log(result.data.id);
+    } catch (err) {
+      setError("Failed to fetch Products");
+    }
+  };
   const columns = [
-    { name: "id", label: "ID" },
-    { name: "name", label: "Name" },
+    { name: "id", label: "Id" },
+    { name: "name", label: "Tên" },
     {
       name: "image",
-      label: "Image",
+      label: "Ảnh",
       options: {
         customBodyRender: (value) => (
           <img
@@ -192,7 +193,7 @@ const Products = () => {
     },
     {
       name: "actions",
-      label: "Actions",
+      label: "Khác",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
           const data = products[tableMeta.rowIndex];
@@ -202,31 +203,31 @@ const Products = () => {
                 onClick={() => handleViewDetails(data.productId, data.id)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               >
-                View Details
+                Xem chi tiết
               </button>
               <button
                 onClick={() => handleUpdateProduct(data.id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Update
+                Cập nhật
               </button>
               <button
                 onClick={() => handleAddWarranty(data.id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Create warranty
+                Tạo bảo hành
               </button>
               <button
-                onClick={() => handleAddWarranty(data.id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                onClick={() => handleUpdateWarranty(data.id)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Update warranty
+                Cập nhật bảo hành
               </button>
               <button
                 onClick={() => handleDeleteWarranty(data.id)}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Delete warranty
+                Xóa bảo hành
               </button>
             </div>
           );
@@ -248,12 +249,12 @@ const Products = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl">Product Management</h1>
+        <h1 className="text-2xl">Quản lí sản phẩm</h1>
         <button
           onClick={handleAddClick}
           className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          <i className="fas fa-plus-circle mr-2"></i> Add Product
+          <i className="fas fa-plus-circle mr-2"></i> Thêm sản phẩm
         </button>
       </div>
 
@@ -262,7 +263,7 @@ const Products = () => {
 
       {!loading && !error && (
         <ReusableTable
-          title="Product List"
+          title="Danh sách sản phẩm"
           columns={columns}
           data={products || []}
           options={options}

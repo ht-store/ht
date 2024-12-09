@@ -1,4 +1,4 @@
-import { Order, OrderItem } from "../database/schemas";
+import { Order, OrderItem, User } from "../database/schemas";
 
 export enum OrderStatus {
   PENDING = "Đang chờ xử lý",
@@ -28,8 +28,13 @@ export interface StripeWebhookEvent {
   };
 }
 
-export type OrderResponse = Order & {
-  items: OrderItem[];
+export type OrderItemProduct = OrderItem & {
+  name?: string;
+  image?: string;
+}
+
+export type OrderResponse = Partial<User> & Order & {
+  items: OrderItemProduct[];
 };
 
 type ProductCartItem = {

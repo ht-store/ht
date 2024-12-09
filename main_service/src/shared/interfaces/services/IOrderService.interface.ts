@@ -43,4 +43,5 @@ export interface IOrderService {
     paymentType: string
   ): Promise<string>;
   webhookHandler(body: any, sig: string): Promise<void>;
+  updateOrderStatus(id: number, status: string): Promise<Order>;
 }

@@ -5,13 +5,13 @@ const AddWarrantyForm = ({ onSubmit, onClose }) => {
   const fields = [
     {
       name: "warrantyPeriod",
-      label: "WarrantyPeriod",
+      label: "Thời hạn bảo hành",
       type: "number",
       required: true,
     },
     {
       name: "warrantyConditions",
-      label: "WarrantyConditions",
+      label: "Điều kiện bảo hành",
       type: "text",
       required: true,
     },
@@ -19,7 +19,7 @@ const AddWarrantyForm = ({ onSubmit, onClose }) => {
 
   return (
     <AddForm
-      title="Add New Warranty for product"
+      title="Thêm bảo hành cho sản phẩm"
       fields={fields}
       onSubmit={onSubmit}
       onClose={onClose}

@@ -11,7 +11,6 @@ const Orders = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get("http://localhost:8001/orders/all");
-        console.log(response.data);
         const formattedOrders = response.data.data.map((order) => ({
           ...order,
           orderDate: formatDate(order.orderDate),
@@ -35,14 +34,32 @@ const Orders = () => {
     return `${day}-${month}-${year}`;
   };
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await axios.put(`http://localhost:8001/orders/${orderId}`, {
+        status: newStatus,
+      });
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, orderStatus: newStatus } : order
+        )
+      );
+      alert("Order status updated successfully!");
+    } catch (error) {
+      console.error("Failed to update order status", error);
+      alert("Failed to update order status");
+    }
+  };
+
   const columns = [
     { name: "id", label: "ID" },
     { name: "totalPrice", label: "Total Price" },
     { name: "orderDate", label: "Order Date" },
-    { name: "orderStatus", label: "Order Status" },
+    {
+      name: "orderStatus",
+      label: "Order Status",
+    },
     { name: "paymentType", label: "Payment Type" },
-    { name: "checkoutSessionId", label: "Checkout Session ID" },
-    { name: "stripePaymentIntentId", label: "Stripe Payment Intent ID" },
   ];
 
   const options = {
@@ -69,6 +86,7 @@ const Orders = () => {
           columns={columns}
           data={orders || []}
           options={options}
+          onStatusChange={handleStatusChange}
         />
       )}
     </div>
