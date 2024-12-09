@@ -24,21 +24,29 @@ export class WarrantyClaimRepository
 
 
   async findAll() {
-    return await this.db.select({
-      id: warrantyClaims.id,
-      productWarrantyId: warrantyClaims.productWarrantyId,
-      claimDate: warrantyClaims.claimDate, 
-      issueDescription: warrantyClaims.issueDescription,
-      resolution: warrantyClaims.resolution,
-      claimStatus: warrantyClaims.claimStatus,
-      partsCost: warrantyClaimCosts.partsCost,
-      repairCost: warrantyClaimCosts.repairCost, 
-      shippingCost: warrantyClaimCosts.shippingCost,
-      totalCost: sql<number>`(sum(${warrantyClaimCosts.repairCost} + ${warrantyClaimCosts.partsCost} + ${warrantyClaimCosts.shippingCost}) as float)`
-    })
-    .from(warrantyClaims)
-    .innerJoin(warrantyClaimCosts, eq(warrantyClaims.id, warrantyClaimCosts.claimId));
-  }
+    return await this.db
+        .select({
+            id: warrantyClaims.id,
+            productWarrantyId: warrantyClaims.productWarrantyId,
+            claimDate: warrantyClaims.claimDate, 
+            issueDescription: warrantyClaims.issueDescription,
+            resolution: warrantyClaims.resolution,
+            claimStatus: warrantyClaims.claimStatus,
+            partsCost: warrantyClaimCosts.partsCost,
+            repairCost: warrantyClaimCosts.repairCost, 
+            shippingCost: warrantyClaimCosts.shippingCost,
+            totalCost: sql<number>`SUM(${warrantyClaimCosts.repairCost} + ${warrantyClaimCosts.partsCost} + ${warrantyClaimCosts.shippingCost})`.as('totalCost'),
+        })
+        .from(warrantyClaims)
+        .innerJoin(warrantyClaimCosts, eq(warrantyClaims.id, warrantyClaimCosts.claimId))
+        .groupBy(
+            warrantyClaims.id,
+            warrantyClaimCosts.partsCost,
+            warrantyClaimCosts.repairCost,
+            warrantyClaimCosts.shippingCost
+        );
+}
+
 
   async findByStatus(status: string): Promise<WarrantyClaim[]> {
     return await this.db

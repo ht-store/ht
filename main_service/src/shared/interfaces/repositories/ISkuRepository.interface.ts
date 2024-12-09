@@ -5,7 +5,7 @@ export interface ISkuRepository extends IRepository<Sku> {
   search(name: string | null, page: number, limit: number, brandId: number | null): Promise<any[]>;
   findByProductId(productId: number): Promise<any[]>;
   findBySlug(slug: string): Promise<any[]>;
-  findBySkuId(skuId: number): Promise<any[]>;
+  findBySkuId(skuId: number): Promise<any>;
   getColorStorageCombinations(skuId: number): Promise<
     {
       color: string;

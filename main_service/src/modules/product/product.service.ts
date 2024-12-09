@@ -113,17 +113,8 @@ export class ProductService implements IProductService {
   }
 
   async getDetails(skuId: number): Promise<any> {
-    const skus = await this.skuRepository.findBySkuId(skuId);
-    if (!skus.length) {
-      throw new NotFoundError("SKU not found");
-    }
-    const atributes = await this.skuRepository.findByProductId(
-      skus[0].products.id
-    );
-    return {
-      skus,
-      atributes: atributes,
-    };
+    const sku = await this.skuRepository.findBySkuId(skuId);
+    return sku
   }
 
   async getStorages(value: string, productId: number) {

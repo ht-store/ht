@@ -15,6 +15,7 @@ import {
   IWarrantyRepository,
 } from "src/shared/interfaces/repositories";
 import { IWarrantyService } from "src/shared/interfaces/services";
+import { logger } from "src/shared/middlewares";
 
 @injectable()
 export class WarrantyService implements IWarrantyService {
@@ -31,7 +32,11 @@ export class WarrantyService implements IWarrantyService {
     private productSerialRepository: IProductSerialRepository
   ) {}
   async getAllClaims(): Promise<WarrantyClaim[]> {
-    return await this.warrantyClaimRepository.findAll();
+    try {
+      return await this.warrantyClaimRepository.findAll();
+    } catch(err) {
+      throw err
+    }
   }
 
   async getClaimsByStatus(status: string): Promise<WarrantyClaim[]> {

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { ilike, eq, and, or } from "drizzle-orm";
+import { ilike, eq, and, or, sql } from "drizzle-orm";
 import { Repository } from "src/shared/base-repository";
 import {
   attributes,
@@ -65,17 +65,45 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
 
   async findBySkuId(skuId: number) {
     logger.info(`Searching for skus with skuId ${skuId}`);
-    return await this.db
-      .select()
+
+    const [sku] = await this.db
+      .select({
+          productId: products.id,
+          screenSize: products.screenSize,
+          battery: products.battery,
+          camera: products.camera,
+          processor: products.processor,
+          os: products.os,
+          skuId: skus.id,
+          skuName: skus.name,
+          skuImage: skus.image,
+          skuSlug: skus.slug,
+          price: prices.price,
+          attributes: sql`JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'attributeType', ${attributes.type},
+              'attributeValue', ${skuAttributes.value}
+            )
+          )`.as('attributes'),
+      })
       .from(skus)
-      .innerJoin(
-        prices,
-        and(eq(skus.id, prices.skuId), eq(prices.activate, true))
-      )
+      .innerJoin(prices, and(eq(skus.id, prices.skuId), eq(prices.activate, true)))
       .innerJoin(products, eq(skus.productId, products.id))
-      .innerJoin(skuAttributes, eq(skuAttributes.skuId, skuId))
-      .where(eq(skus.id, skuId));
-  }
+      .innerJoin(skuAttributes, eq(skuAttributes.skuId, skus.id))
+      .innerJoin(attributes, eq(attributes.id, skuAttributes.attributeId))
+      .where(eq(skus.id, skuId))
+      .groupBy(
+        products.id,
+        products.name,
+        skus.id,
+        skus.name,
+        skus.image,
+        skus.slug,
+        prices.price
+      );
+    console.log(sku)
+    return sku;
+}
 
   async findBySlug(slug: string) {
     logger.info(`Searching for sku with slug ${slug}`);
@@ -132,3 +160,4 @@ export class SkuRepository extends Repository<Sku> implements ISkuRepository {
     return combinations;
   }
 }
+

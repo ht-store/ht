@@ -29,6 +29,11 @@ productRouter.get(
   "/relations/:productId",
   controller.getProductsRelation.bind(controller)
 );
+// admin
+productRouter.get(
+  "/details/sku/:skuId",
+  controller.getProductAdminDetail.bind(controller)
+);
 productRouter.get(
   "/details/:productId/:skuId",
   controller.getProductDetail.bind(controller)

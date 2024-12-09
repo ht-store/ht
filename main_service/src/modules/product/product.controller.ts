@@ -231,7 +231,7 @@ export class ProductController {
       const products = await this.productService.getDetail(productId, skuId);
       const response = {
         success: true,
-        message: "Get products relation is successful",
+        message: "Get products is successful",
         data: products,
       };
       return res.status(STATUS_CODES.OK).json(response);
@@ -240,6 +240,23 @@ export class ProductController {
       next(error);
     }
   }
+
+  async getProductAdminDetail(req: Request, res: Response, next: NextFunction) {
+    const skuId = parseInt(req.params.skuId);
+    try {
+      const products = await this.productService.getDetails(skuId);
+      const response = {
+        success: true,
+        message: "Get products sku is successful",
+        data: products,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      logger.error(`Get Products by brandId ${skuId} failed`, error);
+      next(error);
+    }
+  }
+
 
   async getStorages(req: Request, res: Response, next: NextFunction) {
     const { value, productId } = req.body;
