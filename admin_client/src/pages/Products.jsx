@@ -17,23 +17,24 @@ const Products = () => {
   const [openWarrantyModal, setOpenWarrantyModal] = useState(false);
   const [openWarrantyUpdateModal, setOpenWarrantyUpdateModal] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState(null);
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:8001/products");
+      console.log(response);
+      const skus = response.data.data.map((item) => ({
+        ...item.skus,
+        warranties: item.warranties,
+        details: item.products,
+        price: item.prices.price,
+      }));
+      setProduct(skus);
+    } catch (err) {
+      setError("Failed to fetch Products");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://localhost:8001/products");
-        const skus = response.data.data.map((item) => ({
-          ...item.skus,
-          warranties: item.warranties,
-          details: item.products,
-        }));
-        setProduct(skus);
-      } catch (err) {
-        setError("Failed to fetch Products");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
   }, []);
 
@@ -54,14 +55,12 @@ const Products = () => {
         `http://localhost:8001/products/${productId}/skus/${skuId}`,
         updatedData
       );
-      setProduct((prevProducts) =>
-        prevProducts.map((Product) =>
-          Product.id === skuId ? { ...Product, ...updatedData } : Product
-        )
-      );
+      alert("cập nhật thành công");
+      fetchProducts();
     } catch (error) {
       console.error("Failed to update Product:", error);
       setError("Failed to update Product");
+      alert("cập nhật thất bại");
     } finally {
       setOpenUpdateModal(false);
       setSelectedProduct(null);
@@ -75,7 +74,10 @@ const Products = () => {
         `http://localhost:8001/warranties/warranty`,
         data
       );
+      fetchProducts();
+      alert("Thêm bảo hành thành công");
     } catch (error) {
+      alert("Thêm bảo hành thất bại");
       console.error("Failed to create warranty:", error);
       setError("Failed to create warranty");
     } finally {
@@ -90,9 +92,11 @@ const Products = () => {
         `http://localhost:8001/products/${productId}`
       );
       console.log(response.data);
+      console.log(product);
       const data = {
         ...product.warranties,
         ...response.data.data,
+        price: product.price,
       };
       console.log(data);
       setSelectedProduct(data);
@@ -108,16 +112,24 @@ const Products = () => {
   const handleAddProduct = async (formData) => {
     const data = {
       ...formData,
-      product: { ...formData.product, categoryId: 1, image: "" },
+      product: {
+        ...formData.product,
+        categoryId: 1,
+        image: "",
+        originalPrice: "900",
+      },
     };
     console.log(data);
     try {
       const response = await axios.post("http://localhost:8001/products", data);
+      alert("Thêm sản phẩm thành công");
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
+      alert("Thêm sản phẩm thất bại");
     } finally {
       setOpenAddModal(false);
+      fetchProducts();
     }
   };
 
@@ -129,11 +141,13 @@ const Products = () => {
       await axios.delete(
         `http://localhost:8001/products/sku/${idsToDelete[0]}`
       );
-      const updatedProducts = Products.filter(
+      const updatedProducts = products.filter(
         (_, index) => !indexes.includes(index)
       );
       setProduct(updatedProducts);
+      alert("Xóa sản phẩm thành công");
     } catch (error) {
+      alert("Xóa sản phẩm thất bại");
       console.error("Failed to delete Products:", error);
       setError("Failed to delete Products");
     }
@@ -141,7 +155,10 @@ const Products = () => {
   const handleDeleteWarranty = async (id) => {
     try {
       await axios.delete(`http://localhost:8001/warranties/warranty/${id}`);
+      alert("xóa bảo hành thành công");
+      fetchProducts();
     } catch (err) {
+      alert("xóa bảo hành thất bại");
       setError("Failed to fetch Products");
     }
   };
@@ -157,13 +174,17 @@ const Products = () => {
       warrantyConditions: data.warrantyConditions,
     };
     try {
-      await axios.put(
+      const reponse = await axios.put(
         `http://localhost:8001/warranties/warranty/conditions`,
         formattedData
       );
+      console.log(reponse.data);
       setSelectedWarranty(null);
       setOpenWarrantyUpdateModal(false);
+      fetchProducts();
+      alert("update success");
     } catch (err) {
+      alert("update fail");
       setError("Failed to fetch Products");
     }
   };
