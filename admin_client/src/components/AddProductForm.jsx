@@ -10,7 +10,6 @@ const AddProductForm = ({ onClose, onSubmit }) => {
     camera: "",
     processor: "",
     os: "",
-    originalPrice: "",
   });
 
   const [brands, setBrands] = useState([]);
@@ -183,8 +182,6 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                     ? "Pin"
                     : key === "name"
                     ? "Tên sản phẩm"
-                    : key === "originalPrice"
-                    ? "Giá gốc"
                     : key}
                 </label>
                 <input

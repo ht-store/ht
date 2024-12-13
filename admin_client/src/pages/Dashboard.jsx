@@ -84,10 +84,6 @@ const Dashboard = () => {
       },
     },
     {
-      name: "status",
-      label: "Trạng thái",
-    },
-    {
       name: "totalAmount",
       label: "Tổng tiền",
     },

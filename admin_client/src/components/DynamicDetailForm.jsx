@@ -23,7 +23,7 @@ const DynamicDetailForm = ({ formType, open, onClose, data }) => {
     product: {
       title: "Chi tiết sản phẩm",
       fields: [
-        { label: "Giá gốc", value: data.originalPrice },
+        { label: "Giá gốc", value: data.price },
         { label: "Thương hiệu", value: data.brandId },
         { label: "Kích thước màn hình", value: data.screenSize },
         { label: "Pin", value: data.battery },
