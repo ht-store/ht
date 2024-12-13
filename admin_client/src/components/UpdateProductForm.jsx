@@ -22,7 +22,7 @@ const UpdateProductForm = ({ initialProduct, onSubmit, onClose }) => {
         initialProduct.name.split(" ").length - 2
       ] || "",
     productId: initialProduct.productId,
-    price: "",
+    price: initialProduct.price,
   });
 
   const [productDetails, setProductDetails] = useState(initialProduct.details);
