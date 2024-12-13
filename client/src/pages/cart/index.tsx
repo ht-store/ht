@@ -248,7 +248,7 @@ const CartItem = ({
       toast.error("Đã có lỗi xảy ra, xin vui lòng thử lại");
       return;
     }
-
+    toast.success("Xóa sản phẩm trong giỏ hàng thành công");
     // Cập nhật lại cartItems sau khi sản phẩm bị xóa
     setCartItems((prev) =>
       prev.filter((item) => item.skuId !== cartItem.skuId)

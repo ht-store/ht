@@ -23,8 +23,6 @@ const upload: Multer = multer({
 });
 
 // GET routes
-productRouter.get("/", controller.getSkus.bind(controller));
-productRouter.get("/:id", controller.getProduct.bind(controller));
 productRouter.get(
   "/relations/:productId",
   controller.getProductsRelation.bind(controller)
@@ -38,6 +36,12 @@ productRouter.get(
   "/details/:productId/:skuId",
   controller.getProductDetail.bind(controller)
 );
+productRouter.get(
+  "/detail-attributes/:productuctId",
+  controller.getProductByAttributes.bind(controller)
+);
+productRouter.get("/", controller.getSkus.bind(controller));
+productRouter.get("/:id", controller.getProduct.bind(controller));
 
 // POST routes
 productRouter.post("/storages", auth, controller.getStorages.bind(controller));

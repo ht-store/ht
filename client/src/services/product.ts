@@ -28,6 +28,15 @@ export const getProduct = async (
 ): Promise<AxiosResponse> =>
   request.get(`/products/details/${productId}/${skuId}`);
 
+export const getProductDetailByAttribtue = async (
+    productId: number,
+    query: {
+      color: string,
+      storage: string
+    }
+  ): Promise<AxiosResponse> =>
+    request.get(`/products/detail-attributes/${productId}`, { params: query });
+
 export const getStorage = async (
   productId: number,
   value: string

@@ -10,6 +10,9 @@ import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { GetProductsDto } from "./dtos/get-products.dto";
 import { UploadedImageType } from "src/shared/types";
+import { DB } from "src/shared/database/connect";
+import { attributes, prices, products, skuAttributes, skus } from "src/shared/database/schemas";
+import { eq, and, SQL, ilike } from "drizzle-orm";
 
 @injectable()
 export class ProductController {
@@ -240,6 +243,75 @@ export class ProductController {
       next(error);
     }
   }
+
+
+  async getProductByAttributes(req: Request, res: Response, next: NextFunction) {
+    try {
+      const productId = req.params.productuctId
+      const storage = req.query.storage?.toString() || ""
+      const color = req.query.color?.toString() || ""
+  
+      // Kiểm tra điều kiện nhập
+      if (!productId || (!storage && !color)) { 
+        return res.status(400).json({
+          success: false,
+          message: "Missing required query parameters (productId, and at least one of storage or color)"
+        });
+      }
+      const name = `${storage} ${color}`
+  
+  
+      // Xây dựng điều kiện linh hoạt
+      
+  
+      // Truy vấn dữ liệu từ cơ sở dữ liệu
+    const product = await DB
+      .select({
+        id: products.id,
+        name: products.name,
+        screenSize: products.screenSize,
+        battery: products.battery,
+        camera: products.camera,
+        processor: products.processor,
+        os: products.os,
+        skuId: skus.id,
+        skuName: skus.name,
+        skuSlug: skus.slug,
+        skuImage: skus.image,
+        price: prices.price,
+      })
+      .from(products)
+      .innerJoin(skus, eq(products.id, skus.productId))
+      .innerJoin(prices, eq(skus.id, prices.skuId))
+      .where(
+        and(
+          eq(products.id, +productId),
+          eq(prices.activate, true),
+          ilike(skus.name, `%${name ?? ''}%`),
+        )
+      );
+      if (!product) {
+        throw new NotFoundError("Product not found");
+      }
+      const attributes = await this.productService.getAttributesByProductId(+productId);
+      const data = {
+        product,
+        attributes,
+      };
+  // Loại bỏ các bản ghi trùng lặp bằng cách sử dụng Map
+      const response = {
+        success: true,
+        message: "Get products by attributes is successful",
+        data
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      logger.error(`Get Products by attributes failed`, error);
+      next(error);
+    }
+  }
+  
+  
 
   async getProductAdminDetail(req: Request, res: Response, next: NextFunction) {
     const skuId = parseInt(req.params.skuId);

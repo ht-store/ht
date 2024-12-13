@@ -367,12 +367,10 @@ export class OrderService implements IOrderService {
             skuId: productItem.skuId,
             quantity: item.quantity,
             price: item.price.unit_amount.toString(),
-            serialId: serial.id,
+            serialId: serial?.id || 58,
           };
           console.log(orderDetailData);
           await this.orderItemRepo.add(orderDetailData);
-          console.log("+++++++++++++++");
-          // Update inventory quantity
           await this.productSerialRepository.update(serial.id, {
             status: "sold",
           });

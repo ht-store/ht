@@ -50,6 +50,7 @@ interface ProductResponse {
 const DetailProduct = () => {
   const { productId, skuId } = useParams();
   const navigate = useNavigate();
+  const [sku, setSku] = useState<string | undefined>(skuId);
   const [cartId, setCartId] = useState<number | undefined>(1);
   const [productData, setProductData] = useState<ProductResponse | null>(null);
   const [selectedColor, setSelectedColor] = useState<Attribute | null>(null);
@@ -57,24 +58,17 @@ const DetailProduct = () => {
     null
   );
   const [storageAttributes, setStorageAttributes] = useState<Attribute[]>([]);
-  console.log("selectedColor", selectedColor);
-  console.log("selectedStorage", selectedStorage);
-  console.log("storageAttributes", storageAttributes);
-
+  console.log(sku)
   // Fetch Product and Attributes
   useEffect(() => {
     const fetchProduct = async () => {
-      if (productId && skuId) {
+      if (productId && sku) {
         try {
-          const response = await getProduct(+productId, +skuId);
+          const response = await getProduct(+productId, +sku);
           if (response.data.success) {
             setProductData(response.data.data);
             // Set default color selection
-            if (response.data.data.attributes.Color.length > 0) {
-              const defaultColor = response.data.data.attributes.Color[0];
-              setSelectedColor(defaultColor);
-              fetchStorage(defaultColor); // Fetch storage for the default color
-            }
+            toast.success("Tải dữ liệu sản phẩm thành công");
           }
         } catch (error) {
           console.error("Error fetching product:", error);
@@ -83,7 +77,13 @@ const DetailProduct = () => {
       }
     };
     fetchProduct();
-  }, [productId, skuId]);
+  }, [productId, sku]);
+
+  useEffect(() => {
+    if (skuId) {
+      setSku(skuId);
+    }
+  }, [skuId]);
 
   // Fetch Storage Attributes for the selected color
   const fetchStorage = async (color: Attribute) => {
@@ -97,6 +97,7 @@ const DetailProduct = () => {
             setSelectedStorage(response.data.data[0]);
           }
         }
+        return response.data
       } catch (error) {
         console.error("Error fetching storage:", error);
         toast.error("Không thể tải thông tin dung lượng");
@@ -127,8 +128,7 @@ const DetailProduct = () => {
         skuId: selectedStorage.skuId, // Use selectedStorage's skuId
         quantity: 1,
       });
-
-      if (response.status === HttpStatusCode.Ok) {
+      if (response.status === HttpStatusCode.Created) {
         toast.success("Thêm sản phẩm vào giỏ hàng thành công");
       }
     } catch (error) {
@@ -165,7 +165,6 @@ const DetailProduct = () => {
   };
 
   const handlePaymentByCard = async () => {
-    console.log(product)
     if (!selectedColor || !selectedStorage) {
       toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
@@ -174,15 +173,26 @@ const DetailProduct = () => {
   };
 
   const handlePaymentByCash = async () => {
-    console.log(11)
-    console.log(product)
     if (!selectedColor || !selectedStorage) {
       toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
-    const res = await handleCheckout("cash")
+    await handleCheckout("cash")
     navigate('/success')
   };
+  
+  const handleSelectColor = async (color: Attribute) => {
+    setSelectedColor(color);
+    const res = await fetchStorage(color);
+    console.log(res)
+    if (res.success = true && res.data) {
+      const newSkuId = res.data[0].skuId.toString();
+      setSku(newSkuId); // Update the local state
+
+      // Update the URL with the new SKU
+      navigate(`/mobile/${productId}/${newSkuId}`, { replace: true });
+    }// Fetch storage when color is selected
+  }
 
   if (!productData) {
     return (
@@ -197,7 +207,6 @@ const DetailProduct = () => {
   }
 
   const { product, attributes } = productData;
-  console.log(productData)
   return (
     <>
       <HomeHeader />
@@ -266,10 +275,7 @@ const DetailProduct = () => {
                   {attributes.Color.map((color) => (
                     <div
                       key={color.id}
-                      onClick={() => {
-                        setSelectedColor(color);
-                        fetchStorage(color); // Fetch storage when color is selected
-                      }}
+                      onClick={() => handleSelectColor(color)}
                       className={`cursor-pointer px-4 py-2 border-2 rounded-md transition-all ${
                         selectedColor?.id === color.id
                           ? "border-blue-500 bg-blue-50"
