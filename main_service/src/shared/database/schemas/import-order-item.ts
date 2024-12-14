@@ -23,7 +23,7 @@ export const importOrderItems = pgTable(
       })
       .notNull(),
     quantity: integer("quantity").notNull().default(1),
-    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+    price: decimal("price", { precision: 15, scale: 2 }).notNull(),
     totalPrice: decimal("total_price", { precision: 15, scale: 2 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

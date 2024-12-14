@@ -192,6 +192,8 @@ export class ProductService implements IProductService {
         } else {
           await this.skuRepository.update(skuId, details[0]);
         }
+
+
       } else {
         await this.createNewProductWithSku(product, details);
       }
@@ -304,15 +306,19 @@ export class ProductService implements IProductService {
     existingProduct: Product, 
     newProduct: Product
   ): boolean {
-    const fieldsToCheck = [
-      'battery', 'brandId', 'camera', 'categoryId', 
-      'image', 'originalPrice', 'os', 
-      'processor', 'screenSize'
-    ] as const;
+    try {
+      const fieldsToCheck = [
+        'battery', 'brandId', 'camera', 'categoryId', 
+        'image', 'originalPrice', 'os', 
+        'processor', 'screenSize', 'name',
+      ] as const;
   
-    return fieldsToCheck.some(field => 
-      existingProduct[field] !== newProduct[field]
-    );
+      return fieldsToCheck.some(field => 
+        existingProduct[field] !== newProduct[field]
+      );
+    } catch (error) {
+      throw error;
+    }
   }
   
   private async handleProductReplacement(
@@ -320,16 +326,25 @@ export class ProductService implements IProductService {
     details: ProductDetail[], 
     skuId: number
   ): Promise<void> {
-    const newProduct = await this.productRepository.add(product as Product);
-    await this.createSku(newProduct.id, details);
-    await this.skuRepository.delete(skuId);
+    try {
+      const newProduct = await this.productRepository.add(product as Product);
+      await this.createSku(newProduct.id, details);
+      await this.skuRepository.update(skuId, { productId: newProduct.id });
+    
+    } catch (error) {
+      throw error
+    }
   }
   
   private async createNewProductWithSku(
     product: Partial<Product>, 
     details: ProductDetail[]
   ): Promise<void> {
-    const newProduct = await this.productRepository.add(product as Product);
-    await this.createSku(newProduct.id, details);
+    try {
+      const newProduct = await this.productRepository.add(product as Product);
+      await this.createSku(newProduct.id, details);
+    } catch (error) {
+      throw error; 
+    }
   }
 }

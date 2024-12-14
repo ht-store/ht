@@ -44,7 +44,7 @@ const HistoryPaymentPage = () => {
       <div className="pt-[80px]">
         <div className="container w-[800px] flex flex-col gap-8">
           <div className="flex flex-col">
-            <span className="text-2xl font-semibold">Lịch sử thanh toán</span>
+            <span className="text-2xl font-semibold">Lịch sử đặt hàng</span>
             <p className="text-gray-600 text-sm">
               Kiểm tra trạng thái của đơn hàng.
             </p>

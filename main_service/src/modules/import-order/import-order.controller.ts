@@ -16,7 +16,6 @@ export class ImportOrderController {
   async createImportOrder(req: Request, res: Response, next: NextFunction) {
     try {
       const body = <CreateImportOrderDto>req.body;
-      console.log(req.body);
       const importOrder = await this.importOrderService.createImportOrder(body);
 
       return res.status(STATUS_CODES.CREATED).json({

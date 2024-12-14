@@ -43,7 +43,7 @@ export interface IWarrantyService {
     currency?: string
   ): Promise<number>;
   getClaimCostsByClaimId(claimId: number): Promise<WarrantyClaimCost[]>;
-  getAllClaims(): Promise<Promise<{
+  getAllClaims(): Promise<{
     id: number;
     productWarrantyId: number | null;
     claimDate: Date | null;
@@ -54,7 +54,7 @@ export interface IWarrantyService {
     repairCost: string | null;
     shippingCost: string | null;
     totalCost: number;
-}[]>>;
+}[]>;
   // Lấy warranty theo trạng thái
   getClaimsByStatus(status: string): Promise<WarrantyClaim[]>;
 
@@ -66,4 +66,16 @@ export interface IWarrantyService {
 
   // Lấy tất cả sản phẩm có warranty đang được kích hoạt
   getAllActiveWarranties(): Promise<ProductSellWarranty[]>;
+  getWarrantyClaim(id: number): Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+  }>;
 }

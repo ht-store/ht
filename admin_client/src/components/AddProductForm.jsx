@@ -135,7 +135,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
         slug,
         attributes,
         price: detail.price,
-        imageUrl: detail.image,
+        image: detail.image,
       };
     });
 

@@ -28,7 +28,7 @@ import { logger } from "src/shared/middlewares";
 import { DB } from "src/shared/database/connect";
 import { inject } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export class OrderService implements IOrderService {
   private readonly stripe: Stripe;
@@ -383,6 +383,9 @@ export class OrderService implements IOrderService {
           if (warranty) {
             await this.warrantyService.activateWarranty(serial.id, warranty.id, new Date())
           }
+          await DB.delete(cartItems).where(
+            eq(cartItems.skuId, +productItem.skuId)
+          ).execute();
         })
       );
 
@@ -393,7 +396,6 @@ export class OrderService implements IOrderService {
         orderStatus: OrderStatus.PROCESSING,
       });
 
-      await DB.delete(cartItems).where(eq(cartItems.cartId, +session.metadata.cart_id)).execute();
 
       // Send order confirmation
       // await this.sendOrderConfirmation(order);

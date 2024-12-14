@@ -31,7 +31,18 @@ export class WarrantyService implements IWarrantyService {
     @inject(TYPES.ProductSerialRepository)
     private productSerialRepository: IProductSerialRepository
   ) {}
-  async getAllClaims(): Promise<Promise<{
+  async getWarrantyClaim(id: number): Promise<{ id: number; productWarrantyId: number | null; claimDate: Date | null; issueDescription: string; resolution: string | null; claimStatus: string | null; partsCost: string | null; repairCost: string | null; shippingCost: string | null; totalCost: number; }> {
+    try {
+      const claim = await this.warrantyClaimRepository.findById2(id);
+      if (!claim) {
+        throw new NotFoundError("Claim not found");
+      }
+      return claim
+    } catch(err) {
+      throw err
+    }
+  }
+  async getAllClaims(): Promise<{
     id: number;
     productWarrantyId: number | null;
     claimDate: Date | null;
@@ -42,7 +53,7 @@ export class WarrantyService implements IWarrantyService {
     repairCost: string | null;
     shippingCost: string | null;
     totalCost: number;
-}[]>> {
+}[]> {
     try {
       return await this.warrantyClaimRepository.findAll2();
     } catch(err) {

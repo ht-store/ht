@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
 import { IWarrantyService } from "src/shared/interfaces/services";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 
 @injectable()
@@ -12,7 +12,7 @@ export class WarrantyController {
   ) {}
 
   // Endpoint to create a warranty
-  async createWarranty(req: Request, res: Response): Promise<void> {
+  async createWarranty(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { skuId, warrantyPeriod, warrantyConditions } = req.body;
 
     if (!skuId || !warrantyPeriod) {
@@ -34,7 +34,7 @@ export class WarrantyController {
   }
 
   // Endpoint to get warranty by SKU ID
-  async getWarrantyBySkuId(req: Request, res: Response): Promise<void> {
+  async getWarrantyBySkuId(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { skuId } = req.params;
     if (!skuId) {
       throw new BadRequestError("SKU ID is required.");
@@ -51,7 +51,7 @@ export class WarrantyController {
   }
 
   // Endpoint to update warranty conditions
-  async updateWarrantyConditions(req: Request, res: Response): Promise<void> {
+  async updateWarrantyConditions(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { warrantyId, warrantyConditions } = req.body;
 
     if (!warrantyId || !warrantyConditions) {
@@ -69,12 +69,12 @@ export class WarrantyController {
         .status(200)
         .json({ message: "Warranty conditions updated successfully." });
     } catch (error) {
-      throw new Error(`Failed to update warranty conditions: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to activate warranty
-  async activateWarranty(req: Request, res: Response): Promise<void> {
+  async activateWarranty(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { serialId, warrantyId, warrantyStartDate } = req.body;
 
     if (!serialId || !warrantyId || !warrantyStartDate) {
@@ -93,12 +93,12 @@ export class WarrantyController {
         .status(201)
         .json({ message: "Warranty activated successfully", warranty });
     } catch (error) {
-      throw new Error(`Failed to activate warranty: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to create a warranty claim
-  async createClaim(req: Request, res: Response): Promise<void> {
+  async createClaim(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { serial, issueDescription, repairCost, partsCost, shippingCost } = req.body;
 
     if (!serial || !issueDescription) {
@@ -118,12 +118,12 @@ export class WarrantyController {
         .status(201)
         .json({ message: "Warranty claim created successfully", claimId });
     } catch (error) {
-      throw new Error(`Failed to create warranty claim: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to update claim status
-  async updateClaimStatus(req: Request, res: Response): Promise<void> {
+  async updateClaimStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { claimId, status } = req.body;
 
     if (!claimId || !status) {
@@ -139,7 +139,7 @@ export class WarrantyController {
   }
 
   // Endpoint to add claim costs
-  async addClaimCost(req: Request, res: Response): Promise<void> {
+  async addClaimCost(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { claimId, repairCost, partsCost, shippingCost, currency } = req.body;
 
     if (!claimId || !repairCost || !partsCost || !shippingCost) {
@@ -160,12 +160,12 @@ export class WarrantyController {
         .status(201)
         .json({ message: "Claim costs added successfully", costId });
     } catch (error) {
-      throw new Error(`Failed to add claim costs: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to get claim costs by claim ID
-  async getClaimCostsByClaimId(req: Request, res: Response): Promise<void> {
+  async getClaimCostsByClaimId(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { claimId } = req.params;
 
     if (!claimId) {
@@ -178,22 +178,39 @@ export class WarrantyController {
       );
       res.status(200).json(costs);
     } catch (error) {
-      throw new NotFoundError(`Claim costs not found for Claim ID: ${claimId}`);
+      next(error)
+    }
+  }
+
+  async getClaimByClaimId(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const { claimId } = req.params;
+
+    if (!claimId) {
+      throw new BadRequestError("Claim ID is required.");
+    }
+
+    try {
+      const claim = await this.warrantyService.getWarrantyClaim(
+        Number(claimId)
+      );
+      res.status(200).json(claim);
+    } catch (error) {
+      next(error)
     }
   }
 
   // Endpoint to get all warranty claims
-  async getAllClaims(req: Request, res: Response): Promise<void> {
+  async getAllClaims(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const claims = await this.warrantyService.getAllClaims();
       res.status(200).json(claims);
     } catch (error) {
-      throw new Error(`Failed to get all claims: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to get claims by status
-  async getClaimsByStatus(req: Request, res: Response): Promise<void> {
+  async getClaimsByStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { status } = req.params;
 
     if (!status) {
@@ -204,12 +221,12 @@ export class WarrantyController {
       const claims = await this.warrantyService.getClaimsByStatus(status);
       res.status(200).json(claims);
     } catch (error) {
-      throw new Error(`Failed to get claims by status: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to delete warranty
-  async deleteWarranty(req: Request, res: Response): Promise<void> {
+  async deleteWarranty(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { warrantyId } = req.params;
 
     if (!warrantyId) {
@@ -225,7 +242,7 @@ export class WarrantyController {
   }
 
   // Endpoint to delete claim
-  async deleteClaim(req: Request, res: Response): Promise<void> {
+  async deleteClaim(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { claimId } = req.params;
 
     if (!claimId) {
@@ -236,17 +253,17 @@ export class WarrantyController {
       await this.warrantyService.deleteClaim(Number(claimId));
       res.status(200).json({ message: "Claim deleted successfully." });
     } catch (error) {
-      throw new Error(`Failed to delete claim: ${error}`);
+      next(error)
     }
   }
 
   // Endpoint to get all active warranties
-  async getAllActiveWarranties(req: Request, res: Response): Promise<void> {
+  async getAllActiveWarranties(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const warranties = await this.warrantyService.getAllActiveWarranties();
       res.status(200).json(warranties);
     } catch (error) {
-      throw new Error(`Failed to get all active warranties: ${error}`);
+      next(error)
     }
   }
 }
