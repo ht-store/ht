@@ -13,7 +13,7 @@ export class OrderController {
     @inject(TYPES.OrderService) private readonly orderService: IOrderService
   ) {}
 
-  async createOrder(req: Request, res: Response): Promise<void> {
+  async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const orderData: CreateOrder = req.body.order;
       const orderItems: CreateOrderItem[] = req.body.items;
@@ -28,21 +28,11 @@ export class OrderController {
         data: order,
       });
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        res.status(400).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error creating order",
-      });
+      next(error)
     }
   }
 
-  async getOrder(req: Request, res: Response): Promise<void> {
+  async getOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const orderId = parseInt(req.params.id);
       if (isNaN(orderId)) {
@@ -55,21 +45,11 @@ export class OrderController {
         data: order,
       });
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error retrieving order",
-      });
+     next(error)
     }
   }
 
-  async listOrders(req: Request, res: Response): Promise<void> {
+  async listOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const orders = await this.orderService.listOrders();
       res.status(200).json({  
@@ -77,10 +57,7 @@ export class OrderController {
         data: orders,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Error retrieving orders",
-      });
+      next(error)
     }
   }
 
@@ -131,7 +108,7 @@ export class OrderController {
     }
   }
 
-  async handleWebhook(req: Request, res: Response): Promise<void> {
+  async handleWebhook(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const signature = req.headers["stripe-signature"] as string;
       if (!signature) {
@@ -141,17 +118,7 @@ export class OrderController {
       await this.orderService.webhookHandler(req.rawBody, signature);
       res.status(200).json({ received: true });
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        res.status(400).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error processing webhook",
-      });
+      next(error)
     }
   }
 
