@@ -1,0 +1,1 @@
+ALTER TABLE "import_order_items" ALTER COLUMN "total_price" SET DATA TYPE numeric(15, 2);

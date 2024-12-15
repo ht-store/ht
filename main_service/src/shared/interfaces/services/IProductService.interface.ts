@@ -22,7 +22,7 @@ export interface IProductService {
   createProduct(productData: CreateProductType): Promise<ProductWithRelation>;
   updateProduct(id: number, product: Partial<CreateProduct>): Promise<Product>;
   deleteProduct(id: number): Promise<Product>;
-  searchProducts(name: string, page: number, limit: number): Promise<Sku[]>;
+  searchProducts(name: string | null, page: number, limit: number, brandId: number | null): Promise<Sku[]>;
   getSkusByProductId(productId: number): Promise<Sku[]>;
   getDetails(skuId: number): Promise<any>;
   getDetail(productId: number, skuId: number): Promise<any>;

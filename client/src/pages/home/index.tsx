@@ -68,7 +68,7 @@ const BrandButtons = ({
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchClick = () => {
-    onSearch(searchTerm); // Truyền giá trị tìm kiếm lên component chính
+    onSearch(searchTerm);
   };
 
   return (
@@ -109,7 +109,7 @@ const HomePage = () => {
   const [brands, setBrands] = useState<BrandType[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
-  const phoneType = searchParams.get("phone_type") || "";
+  const brandId = searchParams.get("brandId") || "";
   const searchTerm = searchParams.get("search") || "";
   const page = searchParams.get("page") || "1";
   const navigate = useNavigate();
@@ -138,6 +138,7 @@ const HomePage = () => {
           name: searchTerm,
           pageSize: 18,
           page: parseInt(page),
+          brandId: brandId ? parseInt(brandId) : undefined,
         });
 
         if (rsp.status === HttpStatusCode.Ok) {
@@ -152,19 +153,23 @@ const HomePage = () => {
     handleGetProducts();
   }, [searchParams]);
 
-  const handleBrandSelect = (brandId: number) => {
-    setSearchParams({
-      phone_type: brandId.toString(),
-      search: searchTerm,
-      page: "1",
+  const handleBrandSelect = (selectedBrandId: number) => {
+    setSearchParams((prevParams) => {
+      const newParams = new URLSearchParams(prevParams);
+      newParams.set("brandId", selectedBrandId.toString());
+      newParams.set("search", searchTerm);
+      newParams.set("page", "1");
+      return newParams;
     });
   };
 
   const handleSearch = (search: string) => {
-    setSearchParams({
-      phone_type: phoneType,
-      search: search,
-      page: "1",
+    setSearchParams((prevParams) => {
+      const newParams = new URLSearchParams(prevParams);
+      newParams.set("brandId", brandId);
+      newParams.set("search", search);
+      newParams.set("page", "1");
+      return newParams;
     });
   };
 
@@ -181,7 +186,7 @@ const HomePage = () => {
           {/* Brand Selection */}
           <BrandButtons
             brands={brands}
-            activeBrand={phoneType}
+            activeBrand={brandId}
             onBrandSelect={handleBrandSelect}
             onSearch={handleSearch}
           />
@@ -211,7 +216,7 @@ const HomePage = () => {
                   className={`${parseInt(page) <= 1 ? "hidden" : ""}`}
                   href={`?${new URLSearchParams({
                     page: String(parseInt(page) - 1),
-                    phone_type: phoneType,
+                    brandId: brandId,
                     search: searchTerm,
                   })}`}
                 />
@@ -227,7 +232,7 @@ const HomePage = () => {
                     <PaginationLink
                       href={`?${new URLSearchParams({
                         page: String(curPage + e),
-                        phone_type: phoneType,
+                        brandId: brandId,
                         search: searchTerm,
                       })}`}
                     >
@@ -241,10 +246,11 @@ const HomePage = () => {
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
+
                   className={`${parseInt(page) >= totalPages ? "hidden" : ""}`}
                   href={`?${new URLSearchParams({
                     page: String(parseInt(page) + 1),
-                    phone_type: phoneType,
+                    brandId: brandId,
                     search: searchTerm,
                   })}`}
                 />

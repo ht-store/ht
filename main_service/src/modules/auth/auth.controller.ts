@@ -16,14 +16,14 @@ export class AuthController {
     try {
       const body = <RegisterDto>req.body;
       const data = await this.authService.register(body);
-      await MessageBroker.publish({
-        topic: "UserEvents",
-        headers: {
-          token: data.email,
-        },
-        event: UserEvent.REGISTER_USER,
-        message: data,
-      });
+      // await MessageBroker.publish({
+      //   topic: "UserEvents",
+      //   headers: {
+      //     token: data.email,
+      //   },
+      //   event: UserEvent.REGISTER_USER,
+      //   message: data,
+      // });
       return res
         .status(STATUS_CODES.CREATED)
         .json(BaseResponse.success("Register successfully", data));

@@ -87,6 +87,8 @@ export class CartService implements ICartService {
       skuId
     );
 
+    console.log(addItemData)
+
     if (existingItem) {
       return this.cartItemRepository.update(existingItem.id, {
         quantity: existingItem.quantity + quantity,

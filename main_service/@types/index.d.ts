@@ -6,6 +6,7 @@ declare global {
       userId: number;
       roleId: number;
       rawBody?: string;
+      files?: Express.Multer.File[];
     }
   }
 }

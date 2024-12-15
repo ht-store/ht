@@ -123,7 +123,7 @@ const CartPage = () => {
       return;
     }
   }, [isAuthenticated]);
-
+  console.log(cartItems)
   return (
     <>
       <HomeHeader />
@@ -135,7 +135,7 @@ const CartPage = () => {
           />
           <p className="font-bold text-base">Giỏ hàng của bạn</p>
         </div>
-        {cartItems.length === 0 && (
+        {(cartItems.length === 0 || cartItems[0].skuId === undefined) && (
           <div className="flex flex-col justify-between items-center h-[560px]">
             <div className="flex flex-col justify-center items-center mt-[230px]">
               <p>Giỏ hàng của bạn đang trống.</p>
@@ -151,7 +151,7 @@ const CartPage = () => {
             </div>
           </div>
         )}
-        {cartItems.length > 0 && (
+        {(cartItems.length > 0 && cartItems[0].skuId !== undefined) && (
           <>
             <div className="flex flex-col gap-4 items-center w-full pt-8">
               <div className="flex w-full justify-between items-center border-b-[1px]">
@@ -169,7 +169,7 @@ const CartPage = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-8 w-full pb-[120px]">
-                {cartItems.map((cartItem) => (
+                  {cartItems.map((cartItem) => (
                   <CartItem
                     setCartItems={setCartItems}
                     cartId={cartId!}
@@ -248,7 +248,7 @@ const CartItem = ({
       toast.error("Đã có lỗi xảy ra, xin vui lòng thử lại");
       return;
     }
-
+    toast.success("Xóa sản phẩm trong giỏ hàng thành công");
     // Cập nhật lại cartItems sau khi sản phẩm bị xóa
     setCartItems((prev) =>
       prev.filter((item) => item.skuId !== cartItem.skuId)

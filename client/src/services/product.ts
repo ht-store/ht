@@ -2,6 +2,7 @@ import request from "@/lib/utils/axios";
 import { AxiosResponse } from "axios";
 
 export const getProducts = async (query?: {
+  brandId?: number | null;
   name?: string | null;
   min_price?: number | null;
   max_price?: number | null;
@@ -26,6 +27,15 @@ export const getProduct = async (
   skuId: number
 ): Promise<AxiosResponse> =>
   request.get(`/products/details/${productId}/${skuId}`);
+
+export const getProductDetailByAttribtue = async (
+    productId: number,
+    query: {
+      color: string,
+      storage: string
+    }
+  ): Promise<AxiosResponse> =>
+    request.get(`/products/detail-attributes/${productId}`, { params: query });
 
 export const getStorage = async (
   productId: number,

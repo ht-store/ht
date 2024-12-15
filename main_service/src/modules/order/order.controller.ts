@@ -5,6 +5,7 @@ import { BadRequestError, NotFoundError } from "src/shared/errors";
 import { CreateOrder, CreateOrderItem } from "src/shared/database/schemas";
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
+import { logger } from "src/shared/middlewares";
 
 @injectable()
 export class OrderController {
@@ -12,7 +13,7 @@ export class OrderController {
     @inject(TYPES.OrderService) private readonly orderService: IOrderService
   ) {}
 
-  async createOrder(req: Request, res: Response): Promise<void> {
+  async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const orderData: CreateOrder = req.body.order;
       const orderItems: CreateOrderItem[] = req.body.items;
@@ -27,21 +28,11 @@ export class OrderController {
         data: order,
       });
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        res.status(400).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error creating order",
-      });
+      next(error)
     }
   }
 
-  async getOrder(req: Request, res: Response): Promise<void> {
+  async getOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const orderId = parseInt(req.params.id);
       if (isNaN(orderId)) {
@@ -54,35 +45,32 @@ export class OrderController {
         data: order,
       });
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        res.status(404).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error retrieving order",
-      });
+     next(error)
     }
   }
 
-  async listOrders(req: Request, res: Response): Promise<void> {
+  async listOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.userId
-        ? parseInt(req.query.userId as string)
-        : 1
-      const orders = await this.orderService.listOrders(userId);
-      res.status(200).json({
+      const orders = await this.orderService.listOrders();
+      res.status(200).json({  
         success: true,
         data: orders,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Error retrieving orders",
+      next(error)
+    }
+  }
+
+  async listHistoryOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.userId
+      const orders = await this.orderService.listOrderHistory(userId);
+      res.status(200).json({  
+        success: true,
+        data: orders,
       });
+    } catch (error) {
+      next(error)
     }
   }
 
@@ -95,7 +83,7 @@ export class OrderController {
       const checkoutData: CheckoutType = req.body;
       const userId = req.userId || 1; // Assumes authenticated user
       const paymentType = req.body.paymentType;
-
+      logger.info(paymentType)
       if (!userId) {
         throw new BadRequestError("User ID is required");
       }
@@ -120,7 +108,7 @@ export class OrderController {
     }
   }
 
-  async handleWebhook(req: Request, res: Response): Promise<void> {
+  async handleWebhook(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const signature = req.headers["stripe-signature"] as string;
       if (!signature) {
@@ -130,17 +118,27 @@ export class OrderController {
       await this.orderService.webhookHandler(req.rawBody, signature);
       res.status(200).json({ received: true });
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        res.status(400).json({
-          success: false,
-          message: error.message,
-        });
-        return;
-      }
-      res.status(500).json({
-        success: false,
-        message: "Error processing webhook",
-      });
+      next(error)
     }
   }
+
+  async updateOrderStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const orderId = parseInt(req.params.id);
+      const newStatus = req.body.status;
+
+      if (isNaN(orderId)) {
+        throw new BadRequestError("Invalid order ID");
+      }
+
+      const updatedOrder = await this.orderService.updateOrderStatus(orderId, newStatus);
+      res.status(200).json({
+        success: true,
+        data: updatedOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+      
 }

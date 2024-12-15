@@ -18,7 +18,7 @@ const headerListItem = [
   {
     logo: phoneLogo,
     name: 'Bảo hành',
-    href: '#'
+    href: '/warranty'
   },
   {
     logo: cartLogo,
@@ -56,7 +56,7 @@ export const HomeHeader = () => {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => { navigate('/payment/history') }}>Lịch sử thanh toán</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => { navigate('/payment/history') }}>Lịch sử đặt hàng</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => { reset(); navigate('/auth/login'); }} className="text-destructive">Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

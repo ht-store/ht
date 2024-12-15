@@ -67,8 +67,8 @@ const configuration: Config = {
     process.env.WEBHOOK_SECRET! ||
     "whsec_a070cf94b034316f1aed34019fb80b0d83ad73d0775b4c5c0ae6806dd0f85d9a",
   APP_PREFIX: process.env.APP_PREFIX!,
-  SUCCESS_URL: process.env.SUCCESS_URL || "http://localhost:3000/success",
-  CANCEL_URL: process.env.CANCEL_URL!,
+  SUCCESS_URL: process.env.SUCCESS_URL || "http://localhost:3000/payment/success",
+  CANCEL_URL: process.env.CANCEL_URL! || "http://localhost:3000/payment/fail",
   KAFKA_CLIENT_ID: process.env.KAFKA_CLIENT_ID || "main_service",
   KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || "main_service_group",
   KAFKA_BROKERS: [process.env.KAFKA_BROKER_1 || "localhost:9092"],

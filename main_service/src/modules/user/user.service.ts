@@ -92,7 +92,7 @@ export class UserService implements IUserService {
 
       const newUser = await this.userRepository.add({
         ...data,
-        roleId: 5, // default role is customer
+        roleId: data.roleId, // default role is customer
         rt: null,
         stripeId: null,
       });

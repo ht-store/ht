@@ -21,7 +21,7 @@ export const importOrders = pgTable(
     }),
     orderDate: date("order_date").notNull(),
     status: varchar("status", { length: 50 }).notNull().default("pending"),
-    totalAmount: decimal("total_amount", { precision: 10, scale: 2 })
+    totalAmount: decimal("total_amount", { precision: 15, scale: 2 })
       .notNull()
       .default("0"),
     createdAt: timestamp("created_at").notNull().defaultNow(),

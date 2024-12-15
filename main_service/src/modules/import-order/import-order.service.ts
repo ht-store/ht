@@ -46,20 +46,19 @@ export class ImportOrderService implements IImportOrderService {
       const orderDate =
         data.importDate || new Date().toISOString().split("T")[0];
       const { importOrderItems } = data;
+      const totalAmount = importOrderItems
+        .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+        .toFixed(2)
       const order = await this.importOrderRepository.add({
         orderDate: orderDate,
         supplierId: data.supplierId,
         status: data.status,
-        totalAmount: importOrderItems
-          .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-          .toFixed(2),
+        totalAmount,
       });
-      console.log(order);
 
       const items = await Promise.all(
         importOrderItems.map(async (item) => {
           const { skuId, quantity, unitPrice } = item;
-          console.log(item);
           const itemOrder = await this.importOrderItemRepository.add({
             importOrderId: order.id,
             skuId,
@@ -70,7 +69,6 @@ export class ImportOrderService implements IImportOrderService {
           return itemOrder;
         })
       );
-      console.log(items);
 
       await this.importStock(order.id, items, data.importDate);
       return {

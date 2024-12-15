@@ -18,6 +18,7 @@ export type ProductDetailAttribute = {
 export type ProductDetail = {
   name: string;
   slug: string;
+  image: string
   attributes: ProductDetailAttribute[];
   price: string;
 };

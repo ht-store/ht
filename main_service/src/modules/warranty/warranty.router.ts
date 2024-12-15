@@ -57,6 +57,11 @@ warrantyRouter.get(
   warrantyController.getClaimCostsByClaimId.bind(warrantyController)
 );
 
+warrantyRouter.get(
+  "/claims/:claimId/",
+  warrantyController.getClaimByClaimId.bind(warrantyController)
+);
+
 // Route to get all warranty claims
 warrantyRouter.get(
   "/claims",

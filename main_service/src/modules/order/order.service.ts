@@ -21,14 +21,14 @@ import {
   Order,
   OrderItem,
 } from "src/shared/database/schemas";
-import { IOrderService } from "src/shared/interfaces/services";
+import { IOrderService, IWarrantyService } from "src/shared/interfaces/services";
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import config from "src/config";
 import { logger } from "src/shared/middlewares";
 import { DB } from "src/shared/database/connect";
 import { inject } from "inversify";
 import { TYPES } from "src/shared/constants";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export class OrderService implements IOrderService {
   private readonly stripe: Stripe;
@@ -42,7 +42,9 @@ export class OrderService implements IOrderService {
     @inject(TYPES.InventoryRepository)
     private inventoryRepository: IInventoryRepository,
     @inject(TYPES.SkuRepository)
-    private skuRepository: ISkuRepository
+    private skuRepository: ISkuRepository,
+    @inject(TYPES.WarrantyService) private readonly warrantyService: IWarrantyService
+
   ) {
     this.stripe = new Stripe(
       "sk_test_51NrvBlBRW0tzi9hCKyOzdVSm5bMrlprFwyrXbzDI2OhI2gZFfJPpw0kr8981x0p3EhYo7ysXMGriS8TAoKTrqnDk00kqf5mes6",
@@ -72,41 +74,33 @@ export class OrderService implements IOrderService {
       throw new NotFoundError("Order not found");
     }
     const items = await this.orderItemRepo.getOrderItemsByOrderId(orderId);
+    const user = await this.userRepository.findById(order.userId!);
+    const itemsWithSku = await Promise.all(items.map(async (item) => {
+      const sku = await this.skuRepository.findById(item.skuId);
+      return {
+        ...item,
+        name: sku?.name,
+        image: sku?.image,
+      };
+    }));
     return {
+      ...user,
       ...order,
-      items,
+      items: itemsWithSku,
     };
   }
 
-  async listOrders(userId?: number): Promise<OrderResponse[]> {
-    let orders: Order[];
-  
+  async listOrderHistory(userId: number): Promise<OrderResponse[]> {
+    const orders = await this.orderRepo.getOrdersByUserId(userId);
+    const ordersWithItems = await this.handleOrderItems(orders);
+    return ordersWithItems;
+  }
+
+  async listOrders(): Promise<OrderResponse[]> {
     // Lấy danh sách đơn hàng dựa trên userId
-    if (userId) {
-      orders = await this.orderRepo.getOrdersByUserId(userId);
-    } else {
-      orders = await this.orderRepo.getAllOrders();
-    }
-  
+    const orders = await this.orderRepo.getAllOrders();
     // Xử lý từng đơn hàng và tích hợp thông tin SKU cho từng item
-    const ordersWithItems = await Promise.all(
-      orders.map(async (order) => {
-        const items = await Promise.all(
-          (await this.orderItemRepo.getOrderItemsByOrderId(order.id)).map(async (item) => {
-            const sku = await this.skuRepository.findById(item.skuId); // Lấy thông tin SKU
-            return {
-              ...item,
-              sku, // Thêm thông tin SKU vào item
-            };
-          })
-        );
-  
-        return {
-          ...order,
-          items, // Thêm danh sách items với thông tin SKU vào order
-        };
-      })
-    );
+    const ordersWithItems = await this.handleOrderItems(orders)
   
     return ordersWithItems;
   }
@@ -193,13 +187,6 @@ export class OrderService implements IOrderService {
             serialId: serial.id,
           };
           await this.orderItemRepo.add(orderItemData);
-          await this.orderItemRepo.add({
-            orderId: order.id,
-            price: item.price_data.unit_amount.toString(),
-            quantity: item.quantity,
-            skuId: +item.price_data.product_data.metadata.skuId,
-            serialId: serial.id,
-          });
           await this.productSerialRepository.update(serial.id, {
             status: "sold",
           });
@@ -208,12 +195,16 @@ export class OrderService implements IOrderService {
             1,
             -1
           );
+          const warranty = await this.warrantyService.getWarrantyBySkuId(+item.price_data.product_data.metadata.skuId)
+          if (warranty) {
+            await this.warrantyService.activateWarranty(serial.id, warranty.id, new Date())
+          }
         }
         if (checkoutDto.cartId) {
           await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
         }
 
-        return "Cash payment order created successfully";
+        return config.SUCCESS_URL;
       }
       let stripeId = user.stripeId;
       if (!stripeId) {
@@ -304,6 +295,14 @@ export class OrderService implements IOrderService {
       throw error; // Re-throw for other errors to trigger retry
     }
   }
+
+  async updateOrderStatus(id: number, status: OrderStatus) {
+    try {
+      return await this.orderRepo.updateOrderStatus(id, status);
+    } catch (error) {
+      throw error;
+    }
+  }
   private async handleCompletedCheckoutSession(
     session: Stripe.Checkout.Session
   ): Promise<void> {
@@ -341,7 +340,7 @@ export class OrderService implements IOrderService {
       // Start transaction
       // Create order
       const newOrder = await this.orderRepo.add(orderData);
-
+      console.log("order", newOrder)
       // Process each line item
       await Promise.all(
         lineItems.data.map(async (item, index) => {
@@ -350,6 +349,7 @@ export class OrderService implements IOrderService {
           }
 
           const productItem = productItems[index];
+          console.log("productItem", productItem)
 
           // Get available product serials
 
@@ -367,12 +367,10 @@ export class OrderService implements IOrderService {
             skuId: productItem.skuId,
             quantity: item.quantity,
             price: item.price.unit_amount.toString(),
-            serialId: serial.id,
+            serialId: serial?.id || 58,
           };
           console.log(orderDetailData);
           await this.orderItemRepo.add(orderDetailData);
-          console.log("+++++++++++++++");
-          // Update inventory quantity
           await this.productSerialRepository.update(serial.id, {
             status: "sold",
           });
@@ -381,6 +379,13 @@ export class OrderService implements IOrderService {
             1,
             -1
           );
+          const warranty = await this.warrantyService.getWarrantyBySkuId(productItem.skuId)
+          if (warranty) {
+            await this.warrantyService.activateWarranty(serial.id, warranty.id, new Date())
+          }
+          await DB.delete(cartItems).where(
+            eq(cartItems.skuId, +productItem.skuId)
+          ).execute();
         })
       );
 
@@ -391,7 +396,6 @@ export class OrderService implements IOrderService {
         orderStatus: OrderStatus.PROCESSING,
       });
 
-      await DB.delete(cartItems).where(eq(cartItems.cartId, +session.metadata.cartId)).execute();
 
       // Send order confirmation
       // await this.sendOrderConfirmation(order);
@@ -405,5 +409,27 @@ export class OrderService implements IOrderService {
 
       throw error;
     }
+  }
+
+  private async handleOrderItems(orders: Order[]) {
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const items = await Promise.all(
+          (await this.orderItemRepo.getOrderItemsByOrderId(order.id)).map(async (item) => {
+            const sku = await this.skuRepository.findById(item.skuId); // Lấy thông tin SKU
+            return {
+              ...item,
+              sku, // Thêm thông tin SKU vào item
+            };
+          })
+        );
+  
+        return {
+          ...order,
+          items, // Thêm danh sách items với thông tin SKU vào order
+        };
+      })
+    );
+    return ordersWithItems
   }
 }

@@ -11,7 +11,7 @@ import { skus } from "./sku";
 
 export const prices = pgTable("prices", {
   id: serial("id").primaryKey(),
-  skuId: integer("sku_id").references(() => skus.id),
+  skuId: integer("sku_id").references(() => skus.id, { onDelete: 'cascade' }),
   price: decimal("original_price", { precision: 9, scale: 0 }).notNull(),
   effectiveDate: timestamp("effective_date").notNull(),
   activate: boolean("activate").notNull().default(true),

@@ -9,11 +9,13 @@ import {
 import { BadRequestError, NotFoundError } from "src/shared/errors";
 import {
   IProductSellWarrantyRepository,
+  IProductSerialRepository,
   IWarrantyClaimCostRepository,
   IWarrantyClaimRepository,
   IWarrantyRepository,
 } from "src/shared/interfaces/repositories";
 import { IWarrantyService } from "src/shared/interfaces/services";
+import { logger } from "src/shared/middlewares";
 
 @injectable()
 export class WarrantyService implements IWarrantyService {
@@ -25,10 +27,38 @@ export class WarrantyService implements IWarrantyService {
     @inject(TYPES.WarrantyClaimRepository)
     private warrantyClaimRepository: IWarrantyClaimRepository,
     @inject(TYPES.WarrantyClaimCostRepository)
-    private warrantyClaimCostRepository: IWarrantyClaimCostRepository
+    private warrantyClaimCostRepository: IWarrantyClaimCostRepository,
+    @inject(TYPES.ProductSerialRepository)
+    private productSerialRepository: IProductSerialRepository
   ) {}
-  async getAllClaims(): Promise<WarrantyClaim[]> {
-    return await this.warrantyClaimRepository.findAll();
+  async getWarrantyClaim(id: number): Promise<{ id: number; productWarrantyId: number | null; claimDate: Date | null; issueDescription: string; resolution: string | null; claimStatus: string | null; partsCost: string | null; repairCost: string | null; shippingCost: string | null; totalCost: number; }> {
+    try {
+      const claim = await this.warrantyClaimRepository.findById2(id);
+      if (!claim) {
+        throw new NotFoundError("Claim not found");
+      }
+      return claim
+    } catch(err) {
+      throw err
+    }
+  }
+  async getAllClaims(): Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+}[]> {
+    try {
+      return await this.warrantyClaimRepository.findAll2();
+    } catch(err) {
+      throw err
+    }
   }
 
   async getClaimsByStatus(status: string): Promise<WarrantyClaim[]> {
@@ -61,11 +91,8 @@ export class WarrantyService implements IWarrantyService {
     return newWarranty.id;
   }
 
-  async getWarrantyBySkuId(skuId: number): Promise<Warranty> {
+  async getWarrantyBySkuId(skuId: number): Promise<Warranty | null> {
     const warranty = await this.warrantyRepository.findBySkuId(skuId);
-    if (!warranty) {
-      throw new Error(`Warranty not found for SKU ID: ${skuId}`);
-    }
     return warranty;
   }
 
@@ -127,16 +154,37 @@ export class WarrantyService implements IWarrantyService {
 
   // Warranty Claim Methods
   async createClaim(
-    productWarrantyId: number,
-    issueDescription: string
+    serial: string,
+    issueDescription: string,
+    repairCost: number,
+    partsCost: number,
+    shippingCost: number
   ): Promise<number> {
+    const productSeri = await this.productSerialRepository.findBySerial(serial)
+    if (!productSeri) {
+      throw new NotFoundError("Seri not found")
+    }
+    const productWarranty = await this.productSellWarrantyRepository.findBySerial(
+      productSeri.id
+    );
+    if (!productWarranty) {
+      throw new NotFoundError("product not found");
+    }
+    if (productWarranty.warrantyStatus !== "active") {
+      throw new BadRequestError("product warranty is not active");
+    }
     const claim = await this.warrantyClaimRepository.add({
-      productWarrantyId,
+      productWarrantyId: productWarranty.id,
       issueDescription,
       claimDate: new Date(),
       claimStatus: "pending",
       resolution: null,
     });
+    console.log(repairCost);
+    console.log(partsCost); 
+
+    
+    await this.addClaimCost(claim.id, repairCost, partsCost, shippingCost);
     return claim.id;
   }
 
@@ -165,6 +213,7 @@ export class WarrantyService implements IWarrantyService {
     shippingCost: number,
     currency: string = "VND"
   ): Promise<number> {
+    console.log(repairCost)
     const cost = await this.warrantyClaimCostRepository.add({
       claimId,
       repairCost: repairCost.toFixed(2),

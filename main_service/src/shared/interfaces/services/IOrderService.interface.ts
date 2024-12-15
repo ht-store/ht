@@ -29,7 +29,8 @@ export interface IOrderService {
    * @param userId Optional user ID to filter orders
    * @returns Promise resolving to an array of orders
    */
-  listOrders(userId?: number): Promise<OrderResponse[]>;
+  listOrders(): Promise<OrderResponse[]>;
+  listOrderHistory(userId: number): Promise<OrderResponse[]>
 
   /**
    * Handles Stripe webhook events
@@ -42,4 +43,5 @@ export interface IOrderService {
     paymentType: string
   ): Promise<string>;
   webhookHandler(body: any, sig: string): Promise<void>;
+  updateOrderStatus(id: number, status: string): Promise<Order>;
 }

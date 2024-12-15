@@ -5,8 +5,9 @@ import {
   timestamp,
   integer,
   varchar,
+  index,
 } from "drizzle-orm/pg-core";
-import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, relations, sql } from "drizzle-orm";
 import { products } from "./product";
 import { prices } from "./price";
 import { cartItems } from "./cartItem";
@@ -26,6 +27,13 @@ export const skus = pgTable("skus", {
   image: text("image").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => {
+  return {
+    nameSearchIdx: index("name_sku_search_idx").using(
+      "gin",
+      sql`to_tsvector('english', ${table.name})`
+    ),
+  };
 });
 
 const skuRelations = relations(skus, ({ one, many }) => ({

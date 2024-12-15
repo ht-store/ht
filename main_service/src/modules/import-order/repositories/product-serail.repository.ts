@@ -11,6 +11,15 @@ export class ProductSerialRepository
   constructor() {
     super(productSerials);
   }
+  async findBySerial(serial: string): Promise<ProductSerial | null> {
+    const serials = await this.db
+      .select()
+      .from(productSerials)
+      .where(
+          eq(productSerials.serialNumber, serial),
+      );
+    return serials[0] ?? null;
+  }
   async findFirstBySkuId(skuId: number): Promise<ProductSerial | null> {
     const serials = await this.db
       .select()

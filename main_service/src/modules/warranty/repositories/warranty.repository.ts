@@ -19,4 +19,6 @@ export class WarrantyRepository
       .where(eq(warranties.skuId, skuId));
     return warranty || null;
   }
+
+  
 }

@@ -11,7 +11,7 @@ export interface IWarrantyService {
     warrantyPeriod: number,
     warrantyConditions?: string
   ): Promise<number>;
-  getWarrantyBySkuId(skuId: number): Promise<Warranty>;
+  getWarrantyBySkuId(skuId: number): Promise<Warranty | null>;
   updateWarrantyConditions(
     warrantyId: number,
     warrantyConditions: string
@@ -26,8 +26,12 @@ export interface IWarrantyService {
   ): Promise<ProductSellWarranty | null>;
   updateWarrantyStatus(serialId: number, status: string): Promise<void>;
   createClaim(
-    productWarrantyId: number,
-    issueDescription: string
+    serial: string,
+    issueDescription: string,
+    repairCost: number, 
+    partsCost: number, 
+    shippingCost: number,
+    currency: string
   ): Promise<number>;
   getClaimsByWarrantyId(productWarrantyId: number): Promise<WarrantyClaim[]>;
   updateClaimStatus(claimId: number, status: string): Promise<void>;
@@ -39,8 +43,18 @@ export interface IWarrantyService {
     currency?: string
   ): Promise<number>;
   getClaimCostsByClaimId(claimId: number): Promise<WarrantyClaimCost[]>;
-  getAllClaims(): Promise<WarrantyClaim[]>;
-
+  getAllClaims(): Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+}[]>;
   // Lấy warranty theo trạng thái
   getClaimsByStatus(status: string): Promise<WarrantyClaim[]>;
 
@@ -52,4 +66,18 @@ export interface IWarrantyService {
 
   // Lấy tất cả sản phẩm có warranty đang được kích hoạt
   getAllActiveWarranties(): Promise<ProductSellWarranty[]>;
+  getWarrantyClaim(id: number): Promise<{
+    id: number;
+    productWarrantyId: number | null;
+    productName: string,
+    seri: string,
+    claimDate: Date | null;
+    issueDescription: string;
+    resolution: string | null;
+    claimStatus: string | null;
+    partsCost: string | null;
+    repairCost: string | null;
+    shippingCost: string | null;
+    totalCost: number;
+  }>;
 }

@@ -10,6 +10,7 @@ import flashLogo from "@/assets/svgs/flash.svg";
 import { formatMoneyVND } from "@/lib/utils/price";
 import { addItemToCart, getMyCart } from "@/services/cart";
 import { getProduct, getStorage } from "@/services/product";
+import { orderCheckout } from "@/services/order";
 
 interface Attribute {
   id: number;
@@ -49,31 +50,25 @@ interface ProductResponse {
 const DetailProduct = () => {
   const { productId, skuId } = useParams();
   const navigate = useNavigate();
-  const [cartId, setCartId] = useState<number | null>(null);
+  const [sku, setSku] = useState<string | undefined>(skuId);
+  const [cartId, setCartId] = useState<number | undefined>(1);
   const [productData, setProductData] = useState<ProductResponse | null>(null);
   const [selectedColor, setSelectedColor] = useState<Attribute | null>(null);
   const [selectedStorage, setSelectedStorage] = useState<Attribute | null>(
     null
   );
   const [storageAttributes, setStorageAttributes] = useState<Attribute[]>([]);
-  console.log("selectedColor", selectedColor);
-  console.log("selectedStorage", selectedStorage);
-  console.log("storageAttributes", storageAttributes);
-
+  console.log(sku)
   // Fetch Product and Attributes
   useEffect(() => {
     const fetchProduct = async () => {
-      if (productId && skuId) {
+      if (productId && sku) {
         try {
-          const response = await getProduct(+productId, +skuId);
+          const response = await getProduct(+productId, +sku);
           if (response.data.success) {
             setProductData(response.data.data);
             // Set default color selection
-            if (response.data.data.attributes.Color.length > 0) {
-              const defaultColor = response.data.data.attributes.Color[0];
-              setSelectedColor(defaultColor);
-              fetchStorage(defaultColor); // Fetch storage for the default color
-            }
+            toast.success("Tải dữ liệu sản phẩm thành công");
           }
         } catch (error) {
           console.error("Error fetching product:", error);
@@ -82,7 +77,13 @@ const DetailProduct = () => {
       }
     };
     fetchProduct();
-  }, [productId, skuId]);
+  }, [productId, sku]);
+
+  useEffect(() => {
+    if (skuId) {
+      setSku(skuId);
+    }
+  }, [skuId]);
 
   // Fetch Storage Attributes for the selected color
   const fetchStorage = async (color: Attribute) => {
@@ -96,6 +97,7 @@ const DetailProduct = () => {
             setSelectedStorage(response.data.data[0]);
           }
         }
+        return response.data
       } catch (error) {
         console.error("Error fetching storage:", error);
         toast.error("Không thể tải thông tin dung lượng");
@@ -106,7 +108,6 @@ const DetailProduct = () => {
     const fetchCart = async () => {
       try {
         const response = await getMyCart();
-        console.log(response.data);
         setCartId(response.data.data[0].cartId);
       } catch (error) {
         console.error("Error fetching cart:", error);
@@ -127,23 +128,71 @@ const DetailProduct = () => {
         skuId: selectedStorage.skuId, // Use selectedStorage's skuId
         quantity: 1,
       });
-
-      if (response.status === HttpStatusCode.Ok) {
+      if (response.status === HttpStatusCode.Created) {
         toast.success("Thêm sản phẩm vào giỏ hàng thành công");
       }
     } catch (error) {
       toast.error("Không thể thêm sản phẩm vào giỏ hàng");
     }
   };
+  const handleCheckout = async (paymentType: string) => {
+    if (!productData || !selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
+      return;
+    }
+    
+    if (cartId === undefined) {
+      toast.error("Xin vui lòng đăng nhập mua sản phẩm");
+      return;
+    }
+    const rs = await orderCheckout({
+      cartId: cartId,
+      items: [
+        {
+          name: product.skuName,
+          image: product.skuImage,
+          skuId: selectedStorage.skuId,
+          quantity: 1,
+          price: product.price,
+        }
+      ],
+      paymentType
+    });
 
-  const handleBuyNow = async () => {
+    if (rs.data.data) {
+      window.open(rs.data.data, "_self");
+    }
+  };
+
+  const handlePaymentByCard = async () => {
     if (!selectedColor || !selectedStorage) {
       toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
       return;
     }
-    console.log("Buy now with:", { selectedColor, selectedStorage });
-    // Add your logic for handling 'Buy Now'
+    await handleCheckout("card")
   };
+
+  const handlePaymentByCash = async () => {
+    if (!selectedColor || !selectedStorage) {
+      toast.error("Vui lòng chọn đầy đủ thông tin sản phẩm");
+      return;
+    }
+    await handleCheckout("cash")
+    navigate('/success')
+  };
+  
+  const handleSelectColor = async (color: Attribute) => {
+    setSelectedColor(color);
+    const res = await fetchStorage(color);
+    console.log(res)
+    if (res.success = true && res.data) {
+      const newSkuId = res.data[0].skuId.toString();
+      setSku(newSkuId); // Update the local state
+
+      // Update the URL with the new SKU
+      navigate(`/mobile/${productId}/${newSkuId}`, { replace: true });
+    }// Fetch storage when color is selected
+  }
 
   if (!productData) {
     return (
@@ -158,7 +207,6 @@ const DetailProduct = () => {
   }
 
   const { product, attributes } = productData;
-
   return (
     <>
       <HomeHeader />
@@ -177,17 +225,23 @@ const DetailProduct = () => {
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     onClick={handleAddItemToCart}
-                    className="bg-yellow-500 w-[46%] hover:bg-yellow-400 flex gap-2 items-center"
+                    className="bg-yellow-500 w-[36%] hover:bg-yellow-400 flex gap-2 items-center"
                   >
                     <img className="w-[26px]" src={cartLogo} alt="cart" />
                     THÊM VÀO GIỎ HÀNG
                   </Button>
                   <Button
-                    onClick={handleBuyNow}
-                    className="bg-orange-500 w-[46%] hover:bg-orange-400 flex gap-2 items-center"
+                    onClick={handlePaymentByCard}
+                    className="bg-orange-500 w-[36%] hover:bg-orange-400 flex gap-2 items-center"
                   >
                     <img className="w-[26px]" src={flashLogo} alt="flash" />
-                    MUA NGAY
+                    MUA NGAY (CARD)
+                  </Button>
+                  <Button
+                    onClick={handlePaymentByCash}
+                    className="bg-green-500 w-[36%] hover:bg-green-400 flex gap-2 items-center"
+                  >
+                    MUA NGAY (TIỀN MẶT)
                   </Button>
                 </div>
               </div>
@@ -221,10 +275,7 @@ const DetailProduct = () => {
                   {attributes.Color.map((color) => (
                     <div
                       key={color.id}
-                      onClick={() => {
-                        setSelectedColor(color);
-                        fetchStorage(color); // Fetch storage when color is selected
-                      }}
+                      onClick={() => handleSelectColor(color)}
                       className={`cursor-pointer px-4 py-2 border-2 rounded-md transition-all ${
                         selectedColor?.id === color.id
                           ? "border-blue-500 bg-blue-50"

@@ -26,7 +26,7 @@ const SuccessPaymentPage = () => {
       <div className='relative flex items-center justify-center'>
         <img className='w-[100px] h-[100px]' src={SuccessLogo} />
         <div className='absolute flex flex-col gap-4 top-[180px] w-[400px] text-center font-semibold text-lg'>
-          Thanh toán thành công
+          Đặt hàng thành công
           <Button onClick={handleGoHome} className='bg-main hover:bg-main hover:opacity-80'>Trang chủ</Button>
         </div>
       </div>

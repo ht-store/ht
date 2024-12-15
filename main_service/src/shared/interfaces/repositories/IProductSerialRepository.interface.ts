@@ -8,4 +8,5 @@ export interface IProductSerialRepository extends IRepository<ProductSerial> {
   ): Promise<ProductSerial | null>;
 
   findFirstBySkuId(skuId: number): Promise<ProductSerial | null>;
+  findBySerial(serial: string): Promise<ProductSerial | null>;
 }

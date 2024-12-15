@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { PutObjectCommand, PutObjectCommandOutput, S3Client } from "@aws-sdk/client-s3";
 import md5 from 'md5'
 import { inject, injectable } from "inversify";
 import { TYPES } from "src/shared/constants";
@@ -10,7 +10,7 @@ import {
   ISkuAttributeRepository,
   ISkuRepository,
 } from "src/shared/interfaces/repositories";
-import { IProductService } from "src/shared/interfaces/services";
+import { IProductService, IWarrantyService } from "src/shared/interfaces/services";
 import { logger } from "src/shared/middlewares";
 import {
   AttributesType,
@@ -31,14 +31,15 @@ export class ProductService implements IProductService {
     @inject(TYPES.SkuAttributeRepository)
     private skuAttributeRepository: ISkuAttributeRepository,
     @inject(TYPES.PriceRepository)
-    private priceRepository: IPriceRepository
+    private priceRepository: IPriceRepository,
   ) {
     this.s3Client = this.createS3Client();
   }
+
   
-  async searchProducts(name: string, page: number, limit: number) {
+  async searchProducts(name: string | null, page: number, limit: number, brandId: number | null) {
     console.log("Searching products with name: " + name);
-    return await this.skuRepository.search(name, page, limit);
+    return await this.skuRepository.search(name, page, limit, brandId);
   }
 
   async getProducts(
@@ -113,17 +114,8 @@ export class ProductService implements IProductService {
   }
 
   async getDetails(skuId: number): Promise<any> {
-    const skus = await this.skuRepository.findBySkuId(skuId);
-    if (!skus.length) {
-      throw new NotFoundError("SKU not found");
-    }
-    const atributes = await this.skuRepository.findByProductId(
-      skus[0].products.id
-    );
-    return {
-      skus,
-      atributes: atributes,
-    };
+    const sku = await this.skuRepository.findBySkuId(skuId);
+    return sku
   }
 
   async getStorages(value: string, productId: number) {
@@ -141,8 +133,12 @@ export class ProductService implements IProductService {
         )
       )
     );
-
-    return skustorages;
+    const flattenedStorages = skustorages.flat();
+    const uniqueStorages = Array.from(
+      new Map(flattenedStorages.map((storage) => [storage?.value, storage])).values()
+    );
+  
+    return uniqueStorages;
   }
 
   async getDetail(productId: number, skuId: number) {
@@ -196,6 +192,8 @@ export class ProductService implements IProductService {
         } else {
           await this.skuRepository.update(skuId, details[0]);
         }
+
+
       } else {
         await this.createNewProductWithSku(product, details);
       }
@@ -224,7 +222,7 @@ export class ProductService implements IProductService {
     const imageNameWithoutExt = image.originalname.split(".").slice(0, -1).join("."); // Tên file không có đuôi mở rộng
 
     // Tạo hash MD5 từ tên image và thời gian hiện tại để tránh trùng lặp
-    const hash = md5(imageNameWithoutExt + Date.now());
+    const hash = md5(imageNameWithoutExt.trim() + Date.now());
     const fullImageName = `${uploadPrefix}${hash}.${extension}`; // Tạo tên file
     await this.putObjCommand(fullImageName, imageData);
 
@@ -245,9 +243,9 @@ export class ProductService implements IProductService {
     });
   }
 
-  private async putObjCommand(fileName: string, data: any) {
+  private async putObjCommand(fileName: string, data: any): Promise<PutObjectCommandOutput> {
     try {
-      await this.s3Client.send(
+      const res: PutObjectCommandOutput = await this.s3Client.send(
         new PutObjectCommand({
           Bucket: process.env.CLOUDFLARE_SKUS_BUCKET_NAME,
           Key: fileName,
@@ -255,6 +253,7 @@ export class ProductService implements IProductService {
           ContentType: "image/png", // Đảm bảo phần này là đúng loại nội dung
         })
       );
+      return res
     } catch (error) {
       console.error("Error uploading object to R2 bucket:", error);
       throw error;
@@ -270,7 +269,7 @@ export class ProductService implements IProductService {
             name: sku.name,
             slug: sku.slug,
             productId,
-            image: "",
+            image: sku.image || process.env.IMG_DEFAULT_URL!,
           });
 
           if (!createdSku?.id) {
@@ -307,15 +306,19 @@ export class ProductService implements IProductService {
     existingProduct: Product, 
     newProduct: Product
   ): boolean {
-    const fieldsToCheck = [
-      'battery', 'brandId', 'camera', 'categoryId', 
-      'image', 'originalPrice', 'os', 
-      'processor', 'screenSize'
-    ] as const;
+    try {
+      const fieldsToCheck = [
+        'battery', 'brandId', 'camera', 'categoryId', 
+        'image', 'originalPrice', 'os', 
+        'processor', 'screenSize', 'name',
+      ] as const;
   
-    return fieldsToCheck.some(field => 
-      existingProduct[field] !== newProduct[field]
-    );
+      return fieldsToCheck.some(field => 
+        existingProduct[field] !== newProduct[field]
+      );
+    } catch (error) {
+      throw error;
+    }
   }
   
   private async handleProductReplacement(
@@ -323,16 +326,25 @@ export class ProductService implements IProductService {
     details: ProductDetail[], 
     skuId: number
   ): Promise<void> {
-    const newProduct = await this.productRepository.add(product as Product);
-    await this.createSku(newProduct.id, details);
-    await this.skuRepository.delete(skuId);
+    try {
+      const newProduct = await this.productRepository.add(product as Product);
+      await this.createSku(newProduct.id, details);
+      await this.skuRepository.update(skuId, { productId: newProduct.id });
+    
+    } catch (error) {
+      throw error
+    }
   }
   
   private async createNewProductWithSku(
     product: Partial<Product>, 
     details: ProductDetail[]
   ): Promise<void> {
-    const newProduct = await this.productRepository.add(product as Product);
-    await this.createSku(newProduct.id, details);
+    try {
+      const newProduct = await this.productRepository.add(product as Product);
+      await this.createSku(newProduct.id, details);
+    } catch (error) {
+      throw error; 
+    }
   }
 }

@@ -7,5 +7,5 @@ export interface IOrderRepository extends IRepository<Order> {
   getOrderById(orderId: number): Promise<Order | null>;
   getOrdersByUserId(userId: number): Promise<Order[]>;
   getAllOrders(): Promise<Order[]>;
-  updateOrderStatus(orderId: number, status: OrderStatus): Promise<void>;
+  updateOrderStatus(orderId: number, status: OrderStatus): Promise<Order>;
 }

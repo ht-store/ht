@@ -15,7 +15,7 @@ export default ({ mode }: any) => {
       }
     },
     server: {
-      port: process.env.VITE_PORT ? +process.env.VITE_PORT : 3000,
+      port: process.env.VITE_PORT ? +process.env.VITE_PORT : 3001,
     },
   })
 }
