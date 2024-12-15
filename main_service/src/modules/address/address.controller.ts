@@ -33,9 +33,6 @@ export class AddressController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Get Address is successful", Address));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Address with id ${id} failed`, error);
       next(error);
     }
@@ -70,9 +67,6 @@ export class AddressController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Update Address is successful", updatedAddress));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Address with id ${id} failed`, error);
       next(error);
     }
@@ -88,9 +82,6 @@ export class AddressController {
           BaseResponse.success("Delete Address is successfull", deletedAddress)
         );
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Address with id ${id} failed`, error);
       next(error);
     }

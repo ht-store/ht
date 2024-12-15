@@ -33,9 +33,6 @@ export class BrandController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Get brand is successful", brand));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Brand with id ${id} failed`, error);
       next(error);
     }
@@ -70,9 +67,6 @@ export class BrandController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Update brand is successful", updatedBrand));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Brand with id ${id} failed`, error);
       next(error);
     }
@@ -88,9 +82,6 @@ export class BrandController {
           BaseResponse.success("Delete brand is successfull", deletedBrand)
         );
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Brand with id ${id} failed`, error);
       next(error);
     }

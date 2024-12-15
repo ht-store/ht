@@ -38,9 +38,6 @@ export class CategoryController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Category with id ${id} failed`, error);
       next(error);
     }
@@ -81,9 +78,6 @@ export class CategoryController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Category with id ${id} failed`, error);
       next(error);
     }
@@ -100,9 +94,6 @@ export class CategoryController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Category with id ${id} failed`, error);
       next(error);
     }

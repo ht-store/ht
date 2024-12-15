@@ -33,9 +33,6 @@ export class RoleController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Get Role is successful", Role));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Role with id ${id} failed`, error);
       next(error);
     }
@@ -70,9 +67,6 @@ export class RoleController {
         .status(STATUS_CODES.OK)
         .json(BaseResponse.success("Update Role is successful", updatedRole));
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Role with id ${id} failed`, error);
       next(error);
     }
@@ -88,9 +82,6 @@ export class RoleController {
           BaseResponse.success("Delete Role is successfull", deletedRole)
         );
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Role with id ${id} failed`, error);
       next(error);
     }

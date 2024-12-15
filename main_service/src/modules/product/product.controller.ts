@@ -140,9 +140,6 @@ export class ProductController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Product with id ${id} failed`, error);
       next(error);
     }
@@ -165,9 +162,6 @@ export class ProductController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Product with id ${skuId} failed`, error);
       next(error);
     }
@@ -184,9 +178,6 @@ export class ProductController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Product with id ${id} failed`, error);
       next(error);
     }
@@ -203,9 +194,6 @@ export class ProductController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Product with id ${skuId} failed`, error);
       next(error);
     }

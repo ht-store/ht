@@ -39,9 +39,6 @@ export class WarehouseController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Warehouse with id ${id} failed`, error);
       next(error);
     }
@@ -82,9 +79,6 @@ export class WarehouseController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Warehouse with id ${id} failed`, error);
       next(error);
     }
@@ -101,9 +95,6 @@ export class WarehouseController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Warehouse with id ${id} failed`, error);
       next(error);
     }

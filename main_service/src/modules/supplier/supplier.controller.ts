@@ -39,9 +39,6 @@ export class SupplierController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Get Supplier with id ${id} failed`, error);
       next(error);
     }
@@ -79,9 +76,6 @@ export class SupplierController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Update Supplier with id ${id} failed`, error);
       next(error);
     }
@@ -98,9 +92,6 @@ export class SupplierController {
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        return res.status(404).json({ success: false, error: error.message });
-      }
       logger.error(`Delete Supplier with id ${id} failed`, error);
       next(error);
     }
