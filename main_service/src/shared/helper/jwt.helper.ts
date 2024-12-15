@@ -1,8 +1,8 @@
 import config from "src/config";
 import jwt from "jsonwebtoken";
 import { UnAuthorizedError } from "../errors";
-import logger from "../middlewares/logger.middleware";
 import { Request } from "express";
+import { logger } from "../middlewares";
 
 const { JWT_ACCESS_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = config;
 

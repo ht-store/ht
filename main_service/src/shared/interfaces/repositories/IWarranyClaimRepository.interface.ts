@@ -19,6 +19,8 @@ export interface IWarrantyClaimRepository extends IRepository<WarrantyClaim> {
   findById2(id: number):  Promise<{
     id: number;
     productWarrantyId: number | null;
+    productName: string,
+    seri: string,
     claimDate: Date | null;
     issueDescription: string;
     resolution: string | null;

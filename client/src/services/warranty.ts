@@ -12,6 +12,8 @@ export interface Brand {
 export interface WarrantyResponse {
   id: number,
   productWarrantyId: number,
+  productName: string,
+  seri: string
   claimDate: string,
   issueDescription: string,
   resolution: string | null,

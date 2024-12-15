@@ -9,8 +9,8 @@ const controller = container.get<SupplierController>(TYPES.SupplierController);
 
 supplierRouter.get("/:id", controller.getSupplier.bind(controller));
 supplierRouter.get("/", controller.getSuppliers.bind(controller));
-supplierRouter.post("/", auth, controller.createSupplier.bind(controller));
-supplierRouter.patch("/:id", auth, controller.updateSupplier.bind(controller));
-supplierRouter.delete("/:id", auth, controller.deleteSupplier.bind(controller));
+supplierRouter.post("/", controller.createSupplier.bind(controller));
+supplierRouter.patch("/:id", controller.updateSupplier.bind(controller));
+supplierRouter.delete("/:id", controller.deleteSupplier.bind(controller));
 
 export default supplierRouter;

@@ -69,6 +69,8 @@ export interface IWarrantyService {
   getWarrantyClaim(id: number): Promise<{
     id: number;
     productWarrantyId: number | null;
+    productName: string,
+    seri: string,
     claimDate: Date | null;
     issueDescription: string;
     resolution: string | null;

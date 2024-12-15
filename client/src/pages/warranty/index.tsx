@@ -57,8 +57,9 @@ const WarrantyPage = () => {
           {warrantyData && (
             <div className="mt-6 w-[400px] p-4 border rounded-md bg-white shadow">
               <h3 className="font-semibold text-lg mb-2">Thông tin đơn bảo hành</h3>
-              <p><strong>ID:</strong> {warrantyData.id}</p>
-              <p><strong>Mã bảo hành:</strong> {warrantyData.productWarrantyId}</p>
+              <p><strong>Mã bảo hành:</strong> {warrantyData.id}</p>
+              <p><strong>Tên sản phẩm:</strong> {warrantyData.productName}</p>
+              <p><strong>Số seri:</strong> {warrantyData.seri}</p>
               <p><strong>Ngày yêu cầu:</strong> {new Date(warrantyData.claimDate).toLocaleString()}</p>
               <p><strong>Mô tả vấn đề:</strong> {warrantyData.issueDescription}</p>
               <p><strong>Trạng thái:</strong> {warrantyData.claimStatus}</p>

@@ -2,6 +2,9 @@ import { eq, sql } from "drizzle-orm";
 import { injectable } from "inversify";
 import { Repository } from "src/shared/base-repository";
 import {
+  productSellWarranties,
+  productSerials,
+  skus,
   warranties,
   Warranty,
   WarrantyClaim,
@@ -52,6 +55,8 @@ export class WarrantyClaimRepository
         .select({
             id: warrantyClaims.id,
             productWarrantyId: warrantyClaims.productWarrantyId,
+            productName: skus.name,
+            seri: productSerials.serialNumber,
             claimDate: warrantyClaims.claimDate, 
             issueDescription: warrantyClaims.issueDescription,
             resolution: warrantyClaims.resolution,
@@ -63,12 +68,17 @@ export class WarrantyClaimRepository
         })
         .from(warrantyClaims)
         .innerJoin(warrantyClaimCosts, eq(warrantyClaims.id, warrantyClaimCosts.claimId))
+        .innerJoin(productSellWarranties, eq(productSellWarranties.id, warrantyClaims.productWarrantyId))
+        .innerJoin(productSerials, eq(productSerials.id, productSellWarranties.serialId))
+        .innerJoin(skus, eq(skus.id, productSerials.skuId))
         .where(eq(warrantyClaims.id, id))
         .groupBy(
             warrantyClaims.id,
             warrantyClaimCosts.partsCost,
             warrantyClaimCosts.repairCost,
-            warrantyClaimCosts.shippingCost
+            warrantyClaimCosts.shippingCost,
+            skus.name,
+            productSerials.serialNumber
         )
       return warrantyClaim
   }
