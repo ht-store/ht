@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../components/ReusableTable";
 import AddUserForm from "../components/AddUserForm";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 import DynamicUpdateForm from "../components/DynamicUpdateForm";
 const Users = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -58,9 +58,11 @@ const Users = () => {
           user.id === selectedUser.id ? { ...user, ...updatedData } : user
         )
       );
+      toast.success("Cập nhật thành công");
     } catch (error) {
       console.error("Failed to update user:", error);
       setError("Failed to update user");
+      toast.error("Cập nhật thất bại");
     } finally {
       setOpenUpdateModal(false);
       setSelectedUser(null);

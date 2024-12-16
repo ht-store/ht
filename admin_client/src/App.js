@@ -9,6 +9,8 @@ import Brands from "./pages/Brands";
 import Suppliers from "./pages/Suppliers";
 import Warranties from "./pages/Warranties";
 import Statistical from "./pages/Statistical";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function App() {
   return (
     <Router>
@@ -27,6 +29,7 @@ function App() {
           </Routes>
         </div>
       </div>
+      <ToastContainer />
     </Router>
   );
 }

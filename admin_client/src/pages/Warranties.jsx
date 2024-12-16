@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../components/ReusableTable";
 import DynamicAddForm from "../components/DynamicAddForm";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 import { MenuItem, Select, FormControl, Box, Button } from "@mui/material";
 import DynamicDetailForm from "../components/DynamicDetailForm";
 const Warranties = () => {
@@ -69,10 +69,10 @@ const Warranties = () => {
           claim.id === claimId ? { ...claim, claimStatus: newStatus } : claim
         )
       );
-      alert("Order status updated successfully!");
+      toast.success("Cập nhật thành công");
     } catch (error) {
       console.error("Failed to update order status", error);
-      alert("Failed to update order status");
+      toast.error("Cập nhật thất bại");
     }
   };
   const columns = [
@@ -176,26 +176,24 @@ const Warranties = () => {
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
-
+  const fetchClaims = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8001/warranties/claims"
+      );
+      const formattedClaims = response.data.map((claim) => ({
+        ...claim,
+        claimDate: formatDate(claim.claimDate),
+      }));
+      console.log(formattedClaims);
+      setClaim(formattedClaims);
+    } catch (err) {
+      setError("Failed to fetch Claims");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchClaims = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8001/warranties/claims"
-        );
-        const formattedClaims = response.data.map((claim) => ({
-          ...claim,
-          claimDate: formatDate(claim.claimDate),
-        }));
-        console.log(formattedClaims);
-        setClaim(formattedClaims);
-      } catch (err) {
-        setError("Failed to fetch Claims");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchClaims();
   }, []);
 
@@ -216,10 +214,12 @@ const Warranties = () => {
         "http://localhost:8001/warranties/claim",
         updatedData
       );
-      setClaim((prevClaims) => [...prevClaims, response.data.data]);
+      fetchClaims();
+      toast.success("Thêm thành công");
     } catch (error) {
       console.error("Failed to add claim:", error);
       setError("Failed to add claim");
+      toast.error("Thêm thất bại");
     } finally {
       setOpenAddModal(false);
     }
@@ -236,46 +236,13 @@ const Warranties = () => {
         (_, index) => !indexes.includes(index)
       );
       setClaim(updatedClaims);
+      toast.success("Xóa thành công");
     } catch (error) {
       console.error("Failed to delete claims:", error);
       setError("Failed to delete claims");
+      toast.error("Xóa thất bại");
     }
   };
-  const handleOpenUpdateStatus = (id, currentStatus) => {
-    if (["completed", "reject"].includes(currentStatus)) {
-      alert("Cannot update status once it's completed or rejected.");
-      return;
-    }
-
-    const claim = claims.find((Claim) => Claim.id === id);
-    setSelectedClaim(claim);
-    setOpenUpdateStatusModal(true);
-  };
-
-  const handleUpdateStatusSubmit = async (updatedData) => {
-    console.log(updatedData);
-    try {
-      const response = await axios.put(
-        `http://localhost:8001/warranties/claim/status`,
-        updatedData
-      );
-      setClaim((prevClaims) =>
-        prevClaims.map((claim) =>
-          claim.id === selectedClaim.id
-            ? { ...claim, claimStatus: updatedData.status }
-            : claim
-        )
-      );
-      alert("Status updated successfully!");
-    } catch (error) {
-      console.error("Failed to update status:", error);
-      setError("Failed to update status.");
-    } finally {
-      setOpenUpdateStatusModal(false);
-      setSelectedClaim(null);
-    }
-  };
-
   const options = {
     filter: true,
     selectableRows: "single",

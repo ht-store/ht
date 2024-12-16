@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReusableTable from "../components/ReusableTable";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { MenuItem, Select, FormControl, Box, Button } from "@mui/material";
 import DynamicDetailForm from "../components/DynamicDetailForm";
 const Orders = () => {
@@ -113,10 +114,10 @@ const Orders = () => {
           order.id === orderId ? { ...order, orderStatus: newStatus } : order
         )
       );
-      alert("Order status updated successfully!");
+      toast.success("Cập nhật thành công");
     } catch (error) {
       console.error("Failed to update order status", error);
-      alert("Failed to update order status");
+      toast.error("Cập nhật thất bại");
     }
   };
 

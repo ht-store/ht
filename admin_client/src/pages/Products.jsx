@@ -3,6 +3,7 @@ import ReusableTable from "../components/ReusableTable";
 import DynamicDetailForm from "../components/DynamicDetailForm";
 import AddProductForm from "../components/AddProductForm";
 import axios from "axios";
+import { toast } from "react-toastify";
 import UpdateProductForm from "../components/UpdateProductForm";
 import DynamicAddForm from "../components/DynamicAddForm";
 import DynamicUpdateForm from "../components/DynamicUpdateForm";
@@ -55,12 +56,12 @@ const Products = () => {
         `http://localhost:8001/products/${productId}/skus/${skuId}`,
         updatedData
       );
-      alert("cập nhật thành công");
+      toast.success("Cập nhật sản phẩm thành công");
       fetchProducts();
     } catch (error) {
       console.error("Failed to update Product:", error);
       setError("Failed to update Product");
-      alert("cập nhật thất bại");
+      toast.error("Cập nhật sản phẩm thất bại");
     } finally {
       setOpenUpdateModal(false);
       setSelectedProduct(null);
@@ -75,11 +76,12 @@ const Products = () => {
         data
       );
       fetchProducts();
-      alert("Thêm bảo hành thành công");
+      toast.success("Thêm bảo hành thành công");
     } catch (error) {
       alert("Thêm bảo hành thất bại");
       console.error("Failed to create warranty:", error);
       setError("Failed to create warranty");
+      toast.error("Thêm bảo hành thất bại");
     } finally {
       setOpenWarrantyModal(false);
       setSelectedProduct(null);
@@ -122,11 +124,11 @@ const Products = () => {
     console.log(data);
     try {
       const response = await axios.post("http://localhost:8001/products", data);
-      alert("Thêm sản phẩm thành công");
+      toast.success("Thêm sản phẩm thành công");
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
-      alert("Thêm sản phẩm thất bại");
+      toast.error("Thêm sản phẩm thất bại");
     } finally {
       setOpenAddModal(false);
       fetchProducts();
@@ -145,20 +147,21 @@ const Products = () => {
         (_, index) => !indexes.includes(index)
       );
       setProduct(updatedProducts);
-      alert("Xóa sản phẩm thành công");
+      toast.success("Xóa sản phẩm thành công");
     } catch (error) {
       alert("Xóa sản phẩm thất bại");
       console.error("Failed to delete Products:", error);
       setError("Failed to delete Products");
+      toast.error("Xóa sản phẩm thất bại");
     }
   };
   const handleDeleteWarranty = async (id) => {
     try {
       await axios.delete(`http://localhost:8001/warranties/warranty/${id}`);
-      alert("xóa bảo hành thành công");
+      toast.success("Xóa bảo hành thành công");
       fetchProducts();
     } catch (err) {
-      alert("xóa bảo hành thất bại");
+      toast.error("Xóa bảo hành thất bại");
       setError("Failed to fetch Products");
     }
   };
@@ -182,9 +185,9 @@ const Products = () => {
       setSelectedWarranty(null);
       setOpenWarrantyUpdateModal(false);
       fetchProducts();
-      alert("update success");
+      toast.success("Cập nhật bảo hành thành công");
     } catch (err) {
-      alert("update fail");
+      toast.error("Cập nhật bảo hành thất bại");
       setError("Failed to fetch Products");
     }
   };

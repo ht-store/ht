@@ -3,6 +3,7 @@ import ReusableTable from "../components/ReusableTable";
 import axios from "axios";
 import AddImportOrderForm from "../components/AddImportOrderForm";
 import ImportOrderDetailModal from "../components/ImportOrderDetailModal";
+import { toast } from "react-toastify";
 const Dashboard = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -59,9 +60,11 @@ const Dashboard = () => {
         ...prevImportOrders,
         response.data.data,
       ]);
+      toast.success("Thêm thành công");
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
+      toast.error("Thêm thất bại");
     } finally {
       setOpenAddModal(false);
     }

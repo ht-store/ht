@@ -1,176 +1,154 @@
-// import React, { useState, useEffect } from "react";
-// import ReusableTable from "../components/ReusableTable";
+import React, { useState } from "react";
+import axios from "axios";
+import ReusableTable from "../components/ReusableTable";
 
-// import AddBrandForm from "../components/AddBrandForm";
-// import axios from "axios";
-// import UpdateBrandForm from "../components/UpdateBrandForm";
-// const Statistical = () => {
-//   const [openModal, setOpenModal] = useState(false);
-//   const [openAddModal, setOpenAddModal] = useState(false);
-//   const [openUpdateModal, setOpenUpdateModal] = useState(false);
-//   const [selectedBrand, setSelectedBrand] = useState(null);
-//   const [brands, setBrand] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
+const Statistic = () => {
+  const [data, setData] = useState([]);
+  const [filters, setFilters] = useState({
+    type: "",
+    startDate: "",
+    endDate: "",
+  });
+  const [loading, setLoading] = useState(false);
 
-//   useEffect(() => {
-//     const fetchBrands = async () => {
-//       try {
-//         const response = await axios.get("http://localhost:8001/brands");
-//         setBrand(response.data.data);
-//       } catch (err) {
-//         setError("Failed to fetch brands");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+  const columns = [
+    { name: "period", label: "Thời gian" },
+    { name: "totalOrderRevenue", label: "Doanh thu đơn hàng" },
+    { name: "orderCount", label: "Số lượng đơn hàng" },
+    { name: "totalWarrantyRevenue", label: "Doanh thu bảo hành" },
+    { name: "warrantyCount", label: "Số lượng bảo hành" },
+    { name: "totalRevenue", label: "Tổng" },
+  ];
 
-//     fetchBrands();
-//   }, []);
+  const options = {
+    filter: true,
+    selectableRows: "none",
+    responsive: "standard",
+    download: true,
+    pagination: true,
+  };
 
-//   const handleCloseModal = () => {
-//     setOpenModal(false);
-//     setSelectedBrand(null);
-//   };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:8001/statistic", {
+        params: filters,
+      });
+      const { orderRevenue, warrantyRevenue } = response.data;
+      function mergeRevenues(orderRevenue, warrantyRevenue) {
+        const mergedData = {};
 
-//   const handleUpdateBrand = (id) => {
-//     const brand = brands.find((brand) => brand.id === id);
-//     setSelectedBrand(brand);
-//     setOpenUpdateModal(true);
-//   };
+        orderRevenue.forEach((order) => {
+          const { period, totalRevenue, count } = order;
+          if (!mergedData[period]) {
+            mergedData[period] = {
+              period,
+              totalOrderRevenue: 0,
+              orderCount: 0,
+              totalWarrantyRevenue: 0,
+              warrantyCount: 0,
+              totalRevenue: 0,
+            };
+          }
+          mergedData[period].totalOrderRevenue = totalRevenue;
+          mergedData[period].orderCount = count;
+          mergedData[period].totalRevenue += totalRevenue;
+        });
 
-//   const handleUpdateSubmit = async (updatedData) => {
-//     const data = { name: updatedData.name };
-//     try {
-//       const response = await axios.patch(
-//         `http://localhost:8001/brands/${selectedBrand.id}`,
-//         data
-//       );
-//       setBrand((prevBrands) =>
-//         prevBrands.map((brand) =>
-//           brand.id === selectedBrand.id ? { ...brand, ...updatedData } : brand
-//         )
-//       );
-//     } catch (error) {
-//       console.error("Failed to update brand:", error);
-//       setError("Failed to update brand");
-//     } finally {
-//       setOpenUpdateModal(false);
-//       setSelectedBrand(null);
-//     }
-//   };
+        warrantyRevenue.forEach((warranty) => {
+          const { period, totalRevenue, count } = warranty;
+          if (!mergedData[period]) {
+            mergedData[period] = {
+              period,
+              totalOrderRevenue: 0,
+              orderCount: 0,
+              totalWarrantyRevenue: 0,
+              warrantyCount: 0,
+              totalRevenue: 0,
+            };
+          }
+          mergedData[period].totalWarrantyRevenue = totalRevenue;
+          mergedData[period].warrantyCount = count;
+          mergedData[period].totalRevenue += totalRevenue;
+        });
 
-//   const handleAddClick = () => {
-//     setOpenAddModal(true);
-//   };
+        return Object.values(mergedData);
+      }
 
-//   const handleAddBrand = async (formData) => {
-//     console.log(formData);
-//     try {
-//       const response = await axios.post(
-//         "http://localhost:8001/brands",
-//         formData
-//       );
-//       setBrand((prevBrands) => [...prevBrands, response.data.data]);
-//     } catch (error) {
-//       console.error("Failed to add user:", error);
-//       setError("Failed to add user");
-//     } finally {
-//       setOpenAddModal(false);
-//     }
-//   };
+      const customData = mergeRevenues(orderRevenue, warrantyRevenue);
 
-//   const handleDelete = async (rowsDeleted) => {
-//     const indexes = rowsDeleted.data.map((d) => d.dataIndex);
-//     const idsToDelete = indexes.map((index) => brands[index].id);
-//     try {
-//       await axios.delete(`http://localhost:8001/brands/${idsToDelete[0]}`);
-//       const updatedBrands = brands.filter(
-//         (_, index) => !indexes.includes(index)
-//       );
-//       setBrand(updatedBrands);
-//     } catch (error) {
-//       console.error("Failed to delete brands:", error);
-//       setError("Failed to delete brands");
-//     }
-//   };
+      console.log(customData);
+      setData(customData);
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
 
-//   const columns = [
-//     { name: "id", label: "ID" },
-//     { name: "name", label: "Name" },
+  const handleApplyFilter = () => {
+    fetchData();
+  };
+  return (
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Thống kê doanh thu</h1>
 
-//     {
-//       name: "actions",
-//       label: "Actions",
-//       options: {
-//         customBodyRender: (value, tableMeta, updateValue) => {
-//           const id = tableMeta.rowData[0];
-//           return (
-//             <div className="flex space-x-2">
-//               <button
-//                 onClick={() => handleUpdateBrand(id)}
-//                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
-//               >
-//                 Update
-//               </button>
-//             </div>
-//           );
-//         },
-//       },
-//     },
-//   ];
+      <div className="flex items-center space-x-4 mb-6">
+        <h2 className="">Lọc theo : </h2>
+        <select
+          name="type"
+          value={filters.type}
+          onChange={handleFilterChange}
+          className="p-2 border rounded"
+        >
+          <option value="">-- Loại --</option>
+          <option value="DAILY">Ngày</option>
+          <option value="WEEKLY">Tuần</option>
+          <option value="MONTHLY">Tháng</option>
+          <option value="YEARLY">Năm</option>
+        </select>
+        <h2 className=" ">Từ ngày : </h2>
+        <input
+          type="date"
+          name="startDate"
+          value={filters.startDate}
+          onChange={handleFilterChange}
+          className="p-2 border rounded"
+          placeholder="Từ ngày"
+        />
+        <h2 className="">Đến ngày : </h2>
+        <input
+          type="date"
+          name="endDate"
+          value={filters.endDate}
+          onChange={handleFilterChange}
+          className="p-2 border rounded"
+          placeholder="Đến ngày"
+        />
+        <button
+          onClick={handleApplyFilter}
+          className="p-2 bg-blue-500 text-white rounded"
+        >
+          Lọc
+        </button>
+      </div>
 
-//   const options = {
-//     filter: true,
-//     selectableRows: "single",
-//     responsive: "standard",
-//     download: true,
-//     print: true,
-//     pagination: true,
-//     onRowsDelete: handleDelete,
-//   };
+      {loading ? (
+        <p className="text-gray-600">Đang tải dữ liệu...</p>
+      ) : (
+        <ReusableTable
+          title="Bảng Thống Kê"
+          columns={columns}
+          data={data}
+          options={options}
+        />
+      )}
+    </div>
+  );
+};
 
-//   return (
-//     <div>
-//       <div className="flex items-center justify-between mb-4">
-//         <h1 className="text-2xl">Brand Management</h1>
-//         <button
-//           onClick={handleAddClick}
-//           className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-//         >
-//           <i className="fas fa-plus-circle mr-2"></i> Add Brand
-//         </button>
-//       </div>
-
-//       {loading && <p>Loading brands...</p>}
-//       {error && <p className="text-red-500">{error}</p>}
-
-//       {!loading && !error && (
-//         <ReusableTable
-//           title="Brand List"
-//           columns={columns}
-//           data={brands || []}
-//           options={options}
-//         />
-//       )}
-//       {openAddModal && (
-//         <AddBrandForm
-//           onSubmit={handleAddBrand}
-//           onClose={() => setOpenAddModal(false)}
-//         />
-//       )}
-//       {openUpdateModal && selectedBrand && (
-//         <UpdateBrandForm
-//           initialData={selectedBrand}
-//           onSubmit={handleUpdateSubmit}
-//           onClose={() => {
-//             setOpenUpdateModal(false);
-//             setSelectedBrand(null);
-//           }}
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Statistical;
+export default Statistic;

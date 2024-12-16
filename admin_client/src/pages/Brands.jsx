@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReusableTable from "../components/ReusableTable";
 import DynamicAddForm from "../components/DynamicAddForm";
-
+import { toast } from "react-toastify";
 import axios from "axios";
 import DynamicUpdateForm from "../components/DynamicUpdateForm";
 const Brands = () => {
@@ -51,9 +51,11 @@ const Brands = () => {
           brand.id === selectedBrand.id ? { ...brand, ...updatedData } : brand
         )
       );
+      toast.success("Cập nhật thương hiệu thành công");
     } catch (error) {
       console.error("Failed to update brand:", error);
       setError("Failed to update brand");
+      toast.error("Cập nhật thương hiệu thất bại");
     } finally {
       setOpenUpdateModal(false);
       setSelectedBrand(null);
@@ -72,9 +74,11 @@ const Brands = () => {
         formData
       );
       setBrand((prevBrands) => [...prevBrands, response.data.data]);
+      toast.success("Thêm thương hiệu thành công");
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
+      toast.error("Thêm thương hiệu thất bại");
     } finally {
       setOpenAddModal(false);
     }
@@ -89,9 +93,11 @@ const Brands = () => {
         (_, index) => !indexes.includes(index)
       );
       setBrand(updatedBrands);
+      toast.success("Xóa thương hiệu thành công");
     } catch (error) {
       console.error("Failed to delete brands:", error);
       setError("Failed to delete brands");
+      toast.error("Xóa thương hiệu thất bại");
     }
   };
 
