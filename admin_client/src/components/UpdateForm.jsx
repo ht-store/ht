@@ -84,6 +84,7 @@ const UpdateForm = ({ title, fields, initialData, onSubmit, onClose }) => {
                   onChange={handleChange}
                   className="border border-gray-300 rounded w-full p-2"
                   placeholder={field.placeholder || ""}
+                  required="true"
                 />
               </div>
             );
