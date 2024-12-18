@@ -3,6 +3,7 @@ import ReusableTable from "../components/ReusableTable";
 import DynamicAddForm from "../components/DynamicAddForm";
 import axios from "axios";
 import DynamicUpdateForm from "../components/DynamicUpdateForm";
+import { toast } from "react-toastify";
 const Suppliers = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -53,9 +54,11 @@ const Suppliers = () => {
             : Suppliers
         )
       );
+      toast.success("Cập nhật thành công");
     } catch (error) {
       console.error("Failed to update Suppliers:", error);
       setError("Failed to update Suppliers");
+      toast.error("Cập nhật thất bại");
     } finally {
       setOpenUpdateModal(false);
       setSelectedSuppliers(null);
@@ -75,9 +78,11 @@ const Suppliers = () => {
       );
       console.log(response);
       setSuppliers((prevSuppliers) => [...prevSuppliers, response.data.data]);
+      toast.success("Thêm thành công");
     } catch (error) {
       console.error("Failed to add user:", error);
       setError("Failed to add user");
+      toast.error("Thêm nhà cung cấp thất bại");
     } finally {
       setOpenAddModal(false);
     }
@@ -92,9 +97,11 @@ const Suppliers = () => {
         (_, index) => !indexes.includes(index)
       );
       setSuppliers(updatedSuppliers);
+      toast.success("Xóa thành công");
     } catch (error) {
       console.error("Failed to delete Supplierss:", error);
       setError("Failed to delete Supplierss");
+      toast.error("Xóa nhà cung cấp thất bại");
     }
   };
 
