@@ -164,9 +164,9 @@ const CartPage = () => {
                   />
                   <span>{isSelectAll ? "Bỏ chọn tất cả" : "Chọn tất cả"}</span>
                 </div>
-                <div className="italic text-gray-600 text-sm cursor-pointer">
+                {/* <div className="italic text-gray-600 text-sm cursor-pointer">
                   Xóa sản phẩm đã chọn
-                </div>
+                </div> */}
               </div>
               <div className="flex flex-col gap-8 w-full pb-[120px]">
                   {cartItems.map((cartItem) => (

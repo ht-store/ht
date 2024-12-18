@@ -37,7 +37,7 @@ const Statistic = () => {
       const { orderRevenue, warrantyRevenue } = response.data;
       function mergeRevenues(orderRevenue, warrantyRevenue) {
         const mergedData = {};
-
+      
         orderRevenue.forEach((order) => {
           const { period, totalRevenue, count } = order;
           if (!mergedData[period]) {
@@ -54,7 +54,7 @@ const Statistic = () => {
           mergedData[period].orderCount = count;
           mergedData[period].totalRevenue += totalRevenue;
         });
-
+      
         warrantyRevenue.forEach((warranty) => {
           const { period, totalRevenue, count } = warranty;
           if (!mergedData[period]) {
@@ -71,9 +71,37 @@ const Statistic = () => {
           mergedData[period].warrantyCount = count;
           mergedData[period].totalRevenue += totalRevenue;
         });
-
-        return Object.values(mergedData);
+      
+        const mergedArray = Object.values(mergedData);
+      
+        // Tính tổng cho từng cột
+        const totals = mergedArray.reduce(
+          (acc, row) => {
+            acc.totalOrderRevenue += row.totalOrderRevenue;
+            acc.orderCount += row.orderCount;
+            acc.totalWarrantyRevenue += row.totalWarrantyRevenue;
+            acc.warrantyCount += row.warrantyCount;
+            acc.totalRevenue += row.totalRevenue;
+            return acc;
+          },
+          {
+            totalOrderRevenue: 0,
+            orderCount: 0,
+            totalWarrantyRevenue: 0,
+            warrantyCount: 0,
+            totalRevenue: 0,
+          }
+        );
+      
+        // Thêm hàng tổng vào cuối mảng
+        mergedArray.push({
+          period: "Tổng",
+          ...totals,
+        });
+      
+        return mergedArray;
       }
+      
 
       const customData = mergeRevenues(orderRevenue, warrantyRevenue);
 
