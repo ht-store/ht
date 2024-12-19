@@ -39,7 +39,7 @@ const DynamicAddForm = ({ formType, onSubmit, onClose }) => {
       fields: [
         {
           name: "warrantyPeriod",
-          label: "Thời hạn bảo hành",
+          label: "Thời hạn bảo hành (tháng)",
           type: "number",
           required: true,
         },

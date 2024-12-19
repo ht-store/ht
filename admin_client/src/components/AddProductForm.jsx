@@ -194,6 +194,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                   value={product[key]}
                   onChange={handleProductChange}
                   className="block w-full p-2 border rounded-md"
+                  required="true"
                 />
               </div>
             )
@@ -246,6 +247,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                     handleDetailChange(index, "storage", e.target.value)
                   }
                   className="block w-full p-2 border rounded-md"
+                  required="true"
                 />
               </div>
 
@@ -261,6 +263,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                     handleDetailChange(index, "color", e.target.value)
                   }
                   className="block w-full p-2 border rounded-md"
+                  required="true"
                 />
               </div>
 
@@ -274,6 +277,7 @@ const AddProductForm = ({ onClose, onSubmit }) => {
                     handleDetailChange(index, "price", e.target.value)
                   }
                   className="block w-full p-2 border rounded-md"
+                  required="true"
                 />
               </div>
 

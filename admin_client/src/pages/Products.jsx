@@ -70,6 +70,17 @@ const Products = () => {
   const handleWarrantySubmit = async (warranty) => {
     const data = { ...warranty, skuId: selectedProduct.id };
     console.log(data);
+    const invalidCharsRegex = /[-/\\*<>]/;
+    for (const key in data) {
+      if (typeof data[key] === "string" && invalidCharsRegex.test(data[key])) {
+        toast.error(`Nội dung chứa ký tự không hợp lệ.`);
+        return;
+      }
+    }
+    if (data.warrantyPeriod <= 0) {
+      toast.error("Giá trị thời gian bảo hành phải lớn hơn 0.");
+      return;
+    }
     try {
       const response = await axios.post(
         `http://localhost:8001/warranties/warranty`,
@@ -125,10 +136,10 @@ const Products = () => {
     try {
       const response = await axios.post("http://localhost:8001/products", data);
       toast.success("Thêm sản phẩm thành công");
+      console.log(response);
     } catch (error) {
-      console.error("Failed to add user:", error);
-      setError("Failed to add user");
-      toast.error("Thêm sản phẩm thất bại");
+      setError("Failed to add product");
+      toast.error(error.message);
     } finally {
       setOpenAddModal(false);
       fetchProducts();
@@ -176,6 +187,16 @@ const Products = () => {
       warrantyId: data.id,
       warrantyConditions: data.warrantyConditions,
     };
+    const invalidCharsRegex = /[-/\\*<>]/;
+    for (const key in formattedData) {
+      if (
+        typeof formattedData[key] === "string" &&
+        invalidCharsRegex.test(formattedData[key])
+      ) {
+        toast.error(`Nội dung chứa ký tự không hợp lệ.`);
+        return;
+      }
+    }
     try {
       const reponse = await axios.put(
         `http://localhost:8001/warranties/warranty/conditions`,
